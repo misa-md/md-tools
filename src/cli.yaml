@@ -1,0 +1,31 @@
+name: md-conv
+version: "0.3.1"
+author: genshen. <genshenchu@gmail.com>
+about: Crystal MD conversion tools.
+args:
+  - format:
+      short: f
+      long: format
+      required: true
+      value_name:  FORMAT
+      help: output format(xyz, db, def)
+      takes_value: true
+  - ranks:
+      short: r
+      long: ranks
+      required: true
+      value_name: RANKS
+      help: ranks to run the parallel program
+      takes_value: true
+  - input:
+      short: i
+      long: input
+      required: true
+      help: Sets the filename of input file
+      takes_value: true
+  - output:
+      short: o
+      long: output
+      help: Sets the filename of output file
+      default_value: input txt
+      takes_value: true
