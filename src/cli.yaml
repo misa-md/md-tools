@@ -8,7 +8,7 @@ args:
       long: format
       required: true
       value_name:  FORMAT
-      help: output format(xyz, db, def)
+      help: output format(xyz, text, db, def)
       takes_value: true
   - ranks:
       short: r
