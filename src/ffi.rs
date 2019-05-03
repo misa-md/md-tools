@@ -61,9 +61,10 @@ pub fn parse(filename: &str, output: &str, ranks: u32, mut progress: impl ParseP
     let obj = &progress as *const _ as *mut libc::c_void;
 
     progress.before_parsing(output);
-    let filename_c = CString::new(filename).unwrap();
+    let filename_cstring = CString::new(filename).unwrap();
+    let bytes = filename_cstring.as_bytes_with_nul();
     let status = unsafe {
-        ParseBinaryAtoms(filename.as_ptr() as *const libc::c_char,
+        ParseBinaryAtoms(bytes.as_ptr() as *const libc::c_char,
                          ranks, obj, progress.load_callback())
     };
     if status != 0 {
