@@ -15,7 +15,7 @@ extern "C" {
 /**
  * callback function used by Go if there is some atoms read.
  */
-typedef int (*on_atom_read)(const TypeAtom atom);
+typedef int (*on_atom_read)(void *callback_obj, const TypeAtom atom);
 
 /**
  * start to parse binary atom file.
@@ -23,7 +23,7 @@ typedef int (*on_atom_read)(const TypeAtom atom);
  * @param atom_read callback function.
  * @return if all success, 0 will be returned, otherwise -1 will be returned.
  */
-int ParseBinaryAtoms(const char *filename, unsigned int ranks, on_atom_read atom_read);
+int ParseBinaryAtoms(const char *filename, unsigned int ranks, void *callback_obj, on_atom_read atom_read);
 };
 
 #endif // C_API_H
