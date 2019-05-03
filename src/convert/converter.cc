@@ -7,16 +7,16 @@
 #include "converter.h"
 
 AtomParser::AtomParser(const std::string &file_path)
-        : next_rank_id(0), atoms_in_rank(0), atoms_read_in_rank(0),
-        infile(file_path, std::ios::in | std::ios::binary) {
-    if (!infile.good()) { // open file failed.
+        : next_rank_id(0), atoms_in_rank(0), atoms_read_in_rank(0), infile(nullptr) {
+    infile = new std::ifstream(file_path, std::ios::in | std::ios::binary);
+    if (!infile || infile->fail()) { // open file failed.
         has_error = true;
     }
 }
 
 AtomParser::~AtomParser() {
-    if (infile.good()) { // close file.
-        infile.close();
+    if (infile && infile->good()) { // close file.
+        infile->close();
     }
 }
 
@@ -62,7 +62,7 @@ size_t AtomParser::fill() {
 }
 
 void AtomParser::readBytes(byte *buff, size_t buff_size, int rank_n, int rank) {
-    long begin = infile.tellg();
+    long begin = infile->tellg();
     long H = HEADER_SIZE + _LOCAL_HEADER_SIZE * rank_n;
     long k = (begin - H) / BLOCK_SIZE / rank_n; // now it is on the (k+1)th blocks.
     long next_rank_block = H + (rank_n * (k + 1) + rank) * BLOCK_SIZE;
@@ -73,23 +73,23 @@ void AtomParser::readBytes(byte *buff, size_t buff_size, int rank_n, int rank) {
     std::cout << "k:" << k << " next_rank_block: " << next_rank_block << " next_block: " << next_block
               << " left_this_block: " << left_this_block << ".\n";
 
-    std::cout << "(1) read from " << infile.tellg() << " of " << left_this_block << " bytes. \n";
+    std::cout << "(1) read from " << infile->tellg() << " of " << left_this_block << " bytes. \n";
 #endif
 
-    infile.read(buff, left_this_block);
+    infile->read(buff, left_this_block);
     int gap = sizeof(TypeAtom) - (BLOCK_SIZE * (rank + 1)) % sizeof(TypeAtom);
     if (left_this_block < buff_size) { // read more
-        infile.seekg(next_rank_block, std::ios::beg); // goto next block.
+        infile->seekg(next_rank_block, std::ios::beg); // goto next block.
 #ifdef DEBUG
-        std::cout << "(2) read from " << infile.tellg() << " of " << buff_size - left_this_block
+        std::cout << "(2) read from " << infile->tellg() << " of " << buff_size - left_this_block
                   << " bytes " << +".\n";
 #endif
-        infile.read(buff + left_this_block, gap); // todo fixme bug: can not combine.
-        infile.read(buff + left_this_block + gap, buff_size - left_this_block - gap);
-        infile.read(buff + left_this_block, buff_size - left_this_block);
+        infile->read(buff + left_this_block, gap); // todo fixme bug: can not combine.
+        infile->read(buff + left_this_block + gap, buff_size - left_this_block - gap);
+        infile->read(buff + left_this_block, buff_size - left_this_block);
     }
-    if (infile.tellg() == next_block) { // automatic goes to next rank block.
-        infile.seekg(next_rank_block, std::ios::beg);
+    if (infile->tellg() == next_block) { // automatic goes to next rank block.
+        infile->seekg(next_rank_block, std::ios::beg);
     }
 #ifdef DEBUG
     std::cout << "\n";
@@ -110,23 +110,23 @@ bool AtomParser::checkoutToNextRank() {
     if (next_rank_id >= processors) { // no more rank.
         return false;
     }
-    if (!infile.good()) { // check file.
+    if (!infile->good()) { // check file.
         has_error = true;
         return false;
     }
 
     int &current_rank_id = next_rank_id;
     // read header first.
-    infile.seekg(HEADER_SIZE + _LOCAL_HEADER_SIZE * current_rank_id, std::ios::beg);
+    infile->seekg(HEADER_SIZE + _LOCAL_HEADER_SIZE * current_rank_id, std::ios::beg);
     struct {
         size_t atoms_count;
     } local_header;
 
-    infile.read((byte *) &local_header, sizeof(local_header));
+    infile->read((byte *) &local_header, sizeof(local_header));
     atoms_in_rank = local_header.atoms_count; // set atom count in this rank
 
     // switch to atom storage body.
-    infile.seekg(HEADER_SIZE + _LOCAL_HEADER_SIZE * processors + BLOCK_SIZE * current_rank_id, std::ios::beg);
+    infile->seekg(HEADER_SIZE + _LOCAL_HEADER_SIZE * processors + BLOCK_SIZE * current_rank_id, std::ios::beg);
     // todo check out of range(file length)
     return true;
 }

@@ -19,5 +19,7 @@ int HasError(CAtomParser_T *p);
 int Parse(CAtomParser_T *p, int n_ranks);
 
 int ReadNext(CAtomParser_T *p, TypeAtom *atom);
+
+void clean(CAtomParser_T *pParser);
 }
 #endif // C_API_CONVERTER_C_H
