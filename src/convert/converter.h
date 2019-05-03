@@ -31,7 +31,7 @@ private:
     int next_rank_id = 0;
     size_t atoms_in_rank = 0;
     size_t atoms_read_in_rank = 0;
-    std::ifstream infile;
+    std::ifstream *infile;
 
     // atom buffer
     int cursor = 0;

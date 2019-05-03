@@ -33,3 +33,7 @@ int Parse(CAtomParser_T *p, int n_ranks) {
 int ReadNext(CAtomParser_T *p, TypeAtom *atom) {
     return p->next(atom); // todo bool to int.
 };
+
+void clean(CAtomParser_T *p) {
+    delete p;
+}
