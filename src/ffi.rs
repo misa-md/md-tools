@@ -38,44 +38,33 @@ impl error::Error for ParseError {
 }
 
 pub trait ParseProgress {
-    fn on_atom_read(&mut self, atom: &OneAtomType);
+    fn on_atom_read(&mut self, atom: &OneAtomType) -> i32;
     // todo return error
     fn before_parsing(&self, output: &str);
+    //    fn parse(&mut self, filename: *const libc::c_char, ranks: libc::c_uint) -> libc::c_int;
+    fn load_callback(&mut self) -> extern fn(*mut libc::c_void, OneAtomType) -> libc::c_int;
     fn finish_parsing(&self);
 }
 
-struct NoneParseProgress {}
-
-impl ParseProgress for NoneParseProgress {
-    fn on_atom_read(&mut self, atom: &OneAtomType) {}
-
-    fn before_parsing(&self, output: &str) {}
-
-    fn finish_parsing(&self) {}
-}
-
-extern fn callback(atom: OneAtomType) -> libc::c_int { // this func is called by C.
-    return 1;
-}
 
 extern {
     // passing filename, ranks and callback func (c will call rust fn as callback func).
-    fn ParseBinaryAtoms(filename: *const libc::c_char, ranks: libc::c_uint,
-                        on_atom_read: extern fn(OneAtomType) -> libc::c_int) -> libc::c_int;
+    pub fn ParseBinaryAtoms(filename: *const libc::c_char, ranks: libc::c_uint, target: *mut libc::c_void,
+                            on_atom_read: extern fn(*mut libc::c_void, OneAtomType) -> libc::c_int) -> libc::c_int;
 }
 
 //on_read: fn (atom: OneAtomType) -> u32
-pub fn parse(filename: &str, output: &str, ranks: u32, progress: impl ParseProgress)
+pub fn parse(filename: &str, output: &str, ranks: u32, mut progress: impl ParseProgress)
              -> std::result::Result<i32, ParseError> {
 //    closure.Lock();
 //    defer closure.Unlock();
+    let obj = &progress as *const _ as *mut libc::c_void;
 
-//    closure.fn = onRead;
     progress.before_parsing(output);
     let filename_c = CString::new(filename).unwrap();
     let status = unsafe {
         ParseBinaryAtoms(filename.as_ptr() as *const libc::c_char,
-                         ranks, callback)
+                         ranks, obj, progress.load_callback())
     };
     if status != 0 {
         progress.finish_parsing();

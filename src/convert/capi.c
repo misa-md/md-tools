@@ -5,7 +5,7 @@
 #include "capi.h"
 #include "converter_c.h"
 
-int ParseBinaryAtoms(const char *filename, unsigned int ranks, on_atom_read atom_read) {
+int ParseBinaryAtoms(const char *filename, unsigned int ranks, void *callback_obj, on_atom_read atom_read) {
     TypeAtom atom;
 
     CAtomParser_T *pParser = NewParser(filename);
@@ -15,7 +15,7 @@ int ParseBinaryAtoms(const char *filename, unsigned int ranks, on_atom_read atom
     }
     // todo check error.
     while (ReadNext(pParser, &atom)) {
-        atom_read(atom);
+        atom_read(callback_obj, atom);
     }
     return 0;
 }
