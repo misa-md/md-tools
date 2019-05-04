@@ -7,13 +7,25 @@ use std::{fmt, error};
 #[repr(C)]
 pub struct OneAtomType {
     // u64
-    AtomId: libc::c_ulong,
-    Step: libc::c_uint,
-    AtomType: libc::c_int,
-    InterType: libc::c_char,
+    pub  AtomId: libc::c_ulong,
+    pub  Step: libc::c_uint,
+    pub  AtomType: libc::c_int,
+    pub  InterType: libc::c_char,
     // double 64
-    Location: [libc::c_double; 3],
-    Velocity: [libc::c_double; 3],
+    pub  Location: [libc::c_double; 3],
+    pub  Velocity: [libc::c_double; 3],
+}
+
+impl OneAtomType {
+  pub  fn getNameByEleName(&self) -> &'static str {
+        match self.AtomType {
+            -1 => "V",
+            0 => "Fe",
+            1 => "Cu",
+            2 => "Ni",
+            _ => "Unknown",
+        }
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -40,7 +52,7 @@ impl error::Error for ParseError {
 pub trait ParseProgress {
     fn on_atom_read(&mut self, atom: &OneAtomType) -> i32;
     // todo return error
-    fn before_parsing(&self, output: &str);
+    fn before_parsing(&mut self, output: &str);
     //    fn parse(&mut self, filename: *const libc::c_char, ranks: libc::c_uint) -> libc::c_int;
     fn load_callback(&mut self) -> extern fn(*mut libc::c_void, OneAtomType) -> libc::c_int;
     fn finish_parsing(&self);
