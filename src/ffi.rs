@@ -8,16 +8,17 @@ use std::{fmt, error};
 pub struct OneAtomType {
     // u64
     pub  AtomId: libc::c_ulong,
-    pub  Step: libc::c_uint,
+    // fixme matching size_t in C side.
+    pub  Step: libc::c_ulong,
     pub  AtomType: libc::c_int,
-    pub  InterType: libc::c_char,
+    pub  InterType: libc::c_short,
     // double 64
     pub  Location: [libc::c_double; 3],
     pub  Velocity: [libc::c_double; 3],
 }
 
 impl OneAtomType {
-  pub  fn getNameByEleName(&self) -> &'static str {
+    pub fn getNameByEleName(&self) -> &'static str {
         match self.AtomType {
             -1 => "V",
             0 => "Fe",
