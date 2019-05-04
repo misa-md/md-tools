@@ -14,7 +14,7 @@
  */
 typedef struct type_c_atom {
     unsigned long id; // atom id
-    size_t step; // time step
+    size_t step; // time step // todo use unsigned long in md-code, not size_t.
     int type; // atom type
     short inter_type;
     double atom_location[3]; // atom location
