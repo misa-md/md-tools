@@ -56,7 +56,7 @@ pub trait ParseProgress {
     fn before_parsing(&mut self, output: &str);
     //    fn parse(&mut self, filename: *const libc::c_char, ranks: libc::c_uint) -> libc::c_int;
     fn load_callback(&mut self) -> extern fn(*mut libc::c_void, OneAtomType) -> libc::c_int;
-    fn finish_parsing(&self);
+    fn finish_parsing(&mut self);
 }
 
 

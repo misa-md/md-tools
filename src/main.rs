@@ -2,6 +2,7 @@
 extern crate clap;
 
 mod ffi;
+mod xyz_parser;
 mod text_parser;
 
 fn main() {
@@ -29,6 +30,7 @@ fn main() {
 fn mk_parse(format: &str, ranks: u32, input: &str, output: &str) {
     match format {
         "xyz" => {
+            ffi::parse(input, output, ranks, xyz_parser::new_parser(output));
         }
         "text" => {
             ffi::parse(input, output, ranks, text_parser::new_parser(output));
