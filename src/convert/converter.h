@@ -6,67 +6,59 @@
 
 #define  C_API_CONVERTER_H
 
-#include <fstream>
+#include <stdio.h>
+#include <stdbool.h>
 #include "atom_type.h"
 
 typedef char byte;
 
-class AtomParser {
-public:
+const int buffer_capacity = 1024;
+const int DEFAULT_BLOCK_SIZE = 1024;
+const int HEADER_SIZE = 128;
+const int _LOCAL_HEADER_SIZE = 128;
+const int BLOCK_SIZE = DEFAULT_BLOCK_SIZE * sizeof(TypeAtom); // block size in bytes
 
-    // initialize input file here.
-    AtomParser(const std::string &file_path);
 
-    ~ AtomParser();
+typedef struct _parser {
+    // constance, which will be set in function MakeParser.
+    unsigned int processors; // the count of mpi ranks.
+    unsigned long block_size; // block size of atoms.
+    unsigned long buffer_size; // buffer size of atoms.
+    FILE *infile;
 
-    bool parse(int ranks);
-
-    // read information of next atom.
-    bool next(TypeAtom *atom);
-
-    bool hasError();
-
-private:
-    int processors; // the count of mpi ranks.
-    int next_rank_id = 0;
-    size_t atoms_in_rank = 0;
-    size_t atoms_read_in_rank = 0;
-    std::ifstream *infile;
-
+    // variable
+    unsigned int next_rank_id;
+    size_t atoms_in_rank; // the atoms in current rank
+    size_t atoms_read_in_rank; // atoms have read in this rank
+    unsigned long cursor;
+    unsigned long length; // length read in buffer.
     // atom buffer
-    int cursor = 0;
-    int length = 0;
-    const static int buffer_capacity = 1024;
-    const static int HEADER_SIZE = 128;
-    const static int _LOCAL_HEADER_SIZE = 128;
-    const static int BLOCK_SIZE = buffer_capacity * sizeof(TypeAtom);
-    TypeAtom buffer[buffer_capacity];
+    TypeAtom *buffer;
 
+    // error: false: no error, true: has error
     bool has_error;
+} AtomParser;
 
-    /**
-     * fill buffer.
-     * @return the count of atoms/data read from file.
-     */
-    size_t fill();
+/**
+ * create a new parser.
+ * \param processors MPI ranks to run the md simulation.
+ * \param file_path file path of binary output file.
+ * \return parser.
+ */
+AtomParser MakeParser(unsigned int processors, const char *file_path);
 
-    /**
-     * read bytes array from binary atom file.
-     * If current block don't have enough data. it will jump to next block to read enough dada.
-     * @param buff buffer for saving data.
-     * @param buff_size the data size need read in bytes.
-     * @param rank_n the total MPI ranks.
-     * @param rank current rank id (0 <= rank < rank_n).
-     */
-    void readBytes(byte *buff, size_t buff_size, int rank_n, int rank);
+/**
+ * call when finishing parsing to release resources.
+ * \param p_parser
+ */
+void OnParsingDone(AtomParser *p_parser);
 
-    bool moreInThisRank();
-
-    /**
-     * checkout to next mpi rank in data file.
-     * @return if no more ranks left, false will be returned, otherwise true will be returned.
-     */
-    bool checkoutToNextRank();
-};
+/**
+ * get next atom from buffer or file.
+ * \param p_parser pointer of parser
+ * \param atom atom pointer to store information of next atom.
+ * \return error code: true for ok, false for having error.
+ */
+bool next(AtomParser *p_parser, TypeAtom *atom);
 
 #endif // C_API_CONVERTER_H

@@ -4,25 +4,20 @@
 
 #include <stdio.h>
 #include "capi.h"
-#include "converter_c.h"
 
 int ParseBinaryAtoms(const char *filename, unsigned int ranks, void *callback_obj, on_atom_read atom_read) {
-    TypeAtom atom;
-
-    CAtomParser_T *pParser = NewParser(filename);
-    if (pParser) {
-        Parse(pParser, ranks); // todo rank size.
-        if (HasError(pParser)) {
-            return 1; // error while open file
-        }
-        // todo check error.
-        while (ReadNext(pParser, &atom)) {
-            atom_read(callback_obj, atom);
-        }
-    } else {
-        printf("Error, file `%s` does not exists or having wrong permission.\n", filename);
+    AtomParser parser = MakeParser(ranks, filename);
+    if (parser.has_error) {
+        printf("Error, initialize parser failed with file `%s` and ranks %d.\n", filename, ranks);
+        return 1; // error while open file
     }
 
-    clean(pParser);
+    TypeAtom atom;
+    // todo check error.
+    while (next(&parser, &atom)) {
+        atom_read(callback_obj, atom);
+    }
+
+    OnParsingDone(&parser);
     return 0;
 }
