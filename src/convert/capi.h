@@ -10,8 +10,8 @@
 #define  C_API_H
 
 #include "atom_type.h"
+#include "converter.h"
 
-extern "C" {
 /**
  * callback function used by Go if there is some atoms read.
  */
@@ -24,6 +24,5 @@ typedef int (*on_atom_read)(void *callback_obj, const TypeAtom atom);
  * @return if all success, 0 will be returned, otherwise -1 will be returned.
  */
 int ParseBinaryAtoms(const char *filename, unsigned int ranks, void *callback_obj, on_atom_read atom_read);
-};
 
 #endif // C_API_H
