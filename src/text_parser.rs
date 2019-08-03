@@ -8,7 +8,7 @@ pub struct TextParser {
     output: File,
 }
 
-extern fn callback(target: *mut libc::c_void, atom: OneAtomType) -> libc::c_int { // this func is called by C.
+extern fn text_callback(target: *mut libc::c_void, atom: OneAtomType) -> libc::c_int { // this func is called by C.
     let text_parser: &mut TextParser = unsafe { &mut *(target as *mut TextParser) };
     text_parser.on_atom_read(&atom) as libc::c_int
 }
@@ -29,18 +29,17 @@ impl ParseProgress for TextParser {
         return 1 as i32;
     }
 
+    //todo return Result<>
     fn before_parsing(&mut self, output: &str) {
         // write header.
         self.output.write(b"id \tstep \ttype \tinter_type \tlocate.x \tlocate.y \tlocate.z \tv.x \tv.y \tv.z\n");
     }
 
     fn load_callback(&mut self) -> extern fn(*mut libc::c_void, OneAtomType) -> libc::c_int {
-        return callback;
+        return text_callback;
     }
-
-    fn finish_parsing(&self) {
-        // close file.
-    }
+    //todo return Result<>
+    fn finish_parsing(&mut self) {}
 }
 
 // filename: output file.
