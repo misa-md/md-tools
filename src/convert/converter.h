@@ -12,13 +12,6 @@
 
 typedef char byte;
 
-const int buffer_capacity = 1024;
-const int DEFAULT_BLOCK_SIZE = 1024;
-const int HEADER_SIZE = 128;
-const int _LOCAL_HEADER_SIZE = 128;
-const int BLOCK_SIZE = DEFAULT_BLOCK_SIZE * sizeof(TypeAtom); // block size in bytes
-
-
 typedef struct _parser {
     // constance, which will be set in function MakeParser.
     unsigned int processors; // the count of mpi ranks.
