@@ -7,6 +7,12 @@
 #include <string.h>
 #include "converter.h"
 
+const unsigned int buffer_capacity = 1024;
+const unsigned int DEFAULT_BLOCK_SIZE = 1024;
+const unsigned int HEADER_SIZE = 128;
+const unsigned int _LOCAL_HEADER_SIZE = 128;
+const unsigned int BLOCK_SIZE = DEFAULT_BLOCK_SIZE * sizeof(TypeAtom); // block size in bytes
+
 // private functions here.
 /**
  * check if there are more atoms in this rank.
