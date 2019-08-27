@@ -1,9 +1,7 @@
 use std::io::{Write, SeekFrom};
 use std::io::Seek;
-use std::io;
 use std::fs::{OpenOptions, File};
 use crate::ffi::{ParseProgress, OneAtomType};
-use crate::ffi;
 
 pub struct XYZParser {
     output: File,
@@ -18,7 +16,7 @@ extern fn xyz_callback(target: *mut libc::c_void, atom: OneAtomType) -> libc::c_
 impl ParseProgress for XYZParser {
     fn on_atom_read(&mut self, atom: &OneAtomType) -> i32 {
         let fmt_string = format!("{} \t{:.6} \t{:.6} \t{:.6}\n",
-                                 atom.getNameByEleName(),
+                                 atom.get_name_by_ele_name(),
                                  atom.Location[0], atom.Location[1], atom.Location[2]);
         self.output.write(fmt_string.as_bytes());
         self.atom_count += 1;

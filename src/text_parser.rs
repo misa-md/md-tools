@@ -2,7 +2,6 @@ use crate::ffi::ParseProgress;
 use crate::ffi::OneAtomType;
 use std::fs::{OpenOptions, File};
 use std::io::Write;
-use crate::ffi;
 
 pub struct TextParser {
     output: File,
@@ -22,7 +21,7 @@ writer.write_all(b"test\n");
 impl ParseProgress for TextParser {
     fn on_atom_read(&mut self, atom: &OneAtomType) -> i32 {
         let fmt_string = format!("{} \t{} \t{} \t{} \t{:.6} \t{:.6} \t{:.6}  \t{:.6} \t{:.6} \t{:.6}\n",
-                                 atom.AtomId, atom.Step, atom.getNameByEleName(), atom.InterType,
+                                 atom.AtomId, atom.Step, atom.get_name_by_ele_name(), atom.InterType,
                                  atom.Location[0], atom.Location[1], atom.Location[2],
                                  atom.Velocity[0], atom.Velocity[1], atom.Velocity[2]);
         self.output.write(fmt_string.as_bytes());
