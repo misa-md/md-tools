@@ -1,6 +1,5 @@
 extern crate libc;
 
-use std::ptr;
 use std::ffi::CString;
 use std::{fmt, error};
 
@@ -18,7 +17,7 @@ pub struct OneAtomType {
 }
 
 impl OneAtomType {
-    pub fn getNameByEleName(&self) -> &'static str {
+    pub fn get_name_by_ele_name(&self) -> &'static str {
         match self.AtomType {
             -1 => "V",
             0 => "Fe",
