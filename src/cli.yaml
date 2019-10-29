@@ -1,31 +1,57 @@
 name: md-tools
 version: "0.1.0"
 author: genshen. <genshenchu@gmail.com>
-about: Crystal MD conversion tools, compatible with Crystal MD v0.3.x.
-args:
-  - format:
-      short: f
-      long: format
-      required: true
-      value_name:  FORMAT
-      help: output format(xyz, text, db, def)
-      takes_value: true
-  - ranks:
-      short: r
-      long: ranks
-      required: true
-      value_name: RANKS
-      help: ranks to run the parallel program
-      takes_value: true
-  - input:
-      short: i
-      long: input
-      required: true
-      help: Sets the filename of input file
-      takes_value: true
-  - output:
-      short: o
-      long: output
-      help: Sets the filename of output file
-      default_value: md-output
-      takes_value: true
+about: Crystal MD tools, compatible with Crystal MD v0.3.x and v0.4.x.
+
+subcommands:
+  - conv: # convert to tex or xyz format.
+      about: convert binary MD results to text files.
+      args:
+          - input:
+              short: i
+              long: input
+              required: true
+              help: Sets the filename of input file
+              takes_value: true
+          - output:
+              short: o
+              long: output
+              help: Sets the filename of output file
+              default_value: md-output
+              takes_value: true
+          - format:
+              short: f
+              long: format
+              required: true
+              value_name:  FORMAT
+              help: output format(xyz, text, db, def)
+              takes_value: true
+          - ranks:
+              short: r
+              long: ranks
+              required: true
+              value_name: RANKS
+              help: ranks to run the parallel program
+              takes_value: true
+  - ans:
+      about: defect analysis.
+      args:
+          - input:
+                short: i
+                long: input
+                required: true
+                help: Sets the filename of input file
+                takes_value: true
+          - output:
+                short: o
+                long: output
+                help: Sets the filename of output file
+                default_value: def
+                takes_value: true
+          - method:
+                short: m
+                long: algorithm
+                required: true
+                help: algorithm performing defect analysis (ws).
+                default_value: ws
+                takes_value: true

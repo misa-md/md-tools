@@ -9,8 +9,22 @@ fn main() {
     use clap::App;
 
     let yml = load_yaml!("cli.yaml");
-    let matches = App::from_yaml(yml).get_matches();
+    let matches = App::from_yaml(yml)
+        .setting(clap::AppSettings::ArgRequiredElseHelp)
+        .get_matches();
 
+    if let Some(ref matches) = matches.subcommand_matches("conv") {
+        parse_convert(matches);
+        return;
+    }
+    if let Some(ref matches) = matches.subcommand_matches("ans") {
+        parse_ans(matches);
+        return;
+    }
+    println!("No subcommand is used");
+}
+
+fn parse_convert(matches: &&clap::ArgMatches) {
     let ranks = value_t!(matches, "ranks", u32).unwrap_or(0);
     if ranks <= 0 {
         println!("unsupported ranks value.");
