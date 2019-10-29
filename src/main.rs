@@ -11,6 +11,8 @@ fn main() {
     let yml = load_yaml!("cli.yaml");
     let matches = App::from_yaml(yml)
         .setting(clap::AppSettings::ArgRequiredElseHelp)
+        .version(crate_version!())
+        .author(crate_authors!())
         .get_matches();
 
     if let Some(ref matches) = matches.subcommand_matches("conv") {
@@ -39,6 +41,10 @@ fn parse_convert(matches: &&clap::ArgMatches) {
     let output = matches.value_of("output").unwrap();
 
     mk_parse(format, ranks, input, output);
+}
+
+fn parse_ans(matches: &&clap::ArgMatches) {
+    // todo
 }
 
 fn mk_parse(format: &str, ranks: u32, input: &str, output: &str) {
