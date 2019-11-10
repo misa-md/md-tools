@@ -1,3 +1,4 @@
+use std::f32;
 use std::fs::File;
 use xyzio::Reader;
 use std::collections::BTreeMap;
@@ -66,15 +67,63 @@ pub fn voronoy_ans(xyzfile: &str, output: &str) {
         }
         Ok(mut snapshot) => {
             let atoms_size = snapshot.size();
-            if atoms_size % 2 != 0 {
+            if atoms_size % 2 != 0 { // due to BCC lattice
                 print!("bad atoms size");
                 return;
             }
             // do analysis
-            let size_dim = cube_root(atoms_size / 2); // only cube is supported.
-            do_analysis(size_dim, size_dim, size_dim, &mut snapshot);
+            let size_dim = cube_root(atoms_size / 2);
+            if size_dim == 0 { // it is a cube box
+                do_analysis(size_dim, size_dim, size_dim, &mut snapshot);
+            } else {
+                let (size_x, size_y, size_z) = get_box_size(&snapshot.atoms);
+                if size_x <= 0 || size_y <= 0 || size_z <= 0 {
+                    print!("bad box size: {},{},{}", size_x, size_y, size_z);
+                    return;
+                }
+                do_analysis(size_x as usize, size_y as usize, size_z as usize, &mut snapshot);
+            }
         }
     }
+}
+
+// return the box size of simulation box to calculate 1D lattice index.
+fn get_box_size(atoms: &Vec<xyzio::Atom>) -> (i32, i32, i32) {
+    let mut x_min: f32 = f32::INFINITY;
+    let mut y_min: f32 = f32::INFINITY;
+    let mut z_min: f32 = f32::INFINITY;
+    let mut x_max: f32 = f32::NEG_INFINITY;
+    let mut y_max: f32 = f32::NEG_INFINITY;
+    let mut z_max: f32 = f32::NEG_INFINITY;
+    for i in 0..atoms.len() {
+        let x = atoms[i].x;
+        let y = atoms[i].y;
+        let z = atoms[i].z;
+
+        if x < x_min {
+            x_min = x;
+        }
+        if x > x_max {
+            x_max = x;
+        }
+
+        if y < y_min {
+            y_min = y;
+        }
+        if y > y_max {
+            y_max = y;
+        }
+
+        if z < z_min {
+            z_min = z;
+        }
+        if z > z_max {
+            z_max = z;
+        }
+    }
+    let min_index = voronoy(x_min, y_min, z_min);
+    let max_index = voronoy(x_max, y_max, z_max);
+    return (max_index.0 - min_index.0, max_index.1 - min_index.1, max_index.2 - min_index.2);
 }
 
 fn do_analysis(x_size: usize, y_size: usize, z_size: usize, snapshot: &mut xyzio::Snapshot) {
@@ -160,6 +209,34 @@ fn cube_root(n: usize) -> usize {
 }
 
 #[cfg(test)]
+mod get_box_size_tests {
+    // Note this useful idiom: importing names from outer (for mod tests) scope.
+    use super::*;
+
+    #[test]
+    fn test_get_box_size_1() {
+        let mut atoms = Vec::new();
+        atoms.push(xyzio::Atom {
+            element: String::from("Fe"),
+            x: 4.0 * LATTICE_CONST,
+            y: 6.0 * LATTICE_CONST,
+            z: 8.0 * LATTICE_CONST,
+        });
+        atoms.push(xyzio::Atom {
+            element: String::from("Fe"),
+            x: 2.0 * LATTICE_CONST,
+            y: 1.0 * LATTICE_CONST,
+            z: 9.0 * LATTICE_CONST,
+        });
+        // get lattice size in each dimension
+        let sizes = get_box_size(&atoms);
+        assert_eq!(sizes.0, 2 * 2);
+        assert_eq!(sizes.1, 5);
+        assert_eq!(sizes.2, 1);
+    }
+}
+
+#[cfg(test)]
 mod voronoy_tests {
     // Note this useful idiom: importing names from outer (for mod tests) scope.
     use super::*;
@@ -168,12 +245,6 @@ mod voronoy_tests {
     fn test_voronoy() {
         assert_eq!(voronoy(1.377608, 1.501391, 1.471441), (1, 0, 0));
         assert_eq!(voronoy(2.772588, 0.056315, -0.044443), (2, 0, 0));
-        let (x, y, z) = voronoy(87.752754, 70.48184, 106.51511);
-        println!("{},{},{}", x, y, z);
-        println!("{},{},{}", 87.752754 / LATTICE_CONST, 70.48184 / LATTICE_CONST, 106.51511 / LATTICE_CONST);
-        let (x, y, z) = voronoy(87.47429, 68.04628, 105.903009);
-        println!("{},{},{}", x, y, z);
-        println!("{},{},{}", 87.47429 / LATTICE_CONST, 68.04628 / LATTICE_CONST, 105.903009 / LATTICE_CONST);
     }
 }
 
