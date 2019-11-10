@@ -16,7 +16,7 @@ const LATTICE_CONST: Float = 2.85532;
  * If the major lattice is determined, we can get the lattice coordinate of a minor lattice
  * by this offset.
  */
-const offset: [(Inx, Inx, Inx); 8] = [ //offset index: 0-> x, 1 -> y, 2 -> z
+const OFFSET: [(Inx, Inx, Inx); 8] = [ //offset index: 0-> x, 1 -> y, 2 -> z
     (-1, -1, -1), // x low,  y low,  z low, (b000)
     (1, -1, -1), // x high, y low,  z low, (b001)
     (-1, 0, -1), // x low,  y high, z low, (b010)
@@ -44,7 +44,7 @@ const offset: [(Inx, Inx, Inx); 8] = [ //offset index: 0-> x, 1 -> y, 2 -> z
  *
  * Noticing that, for major lattice position:(0, 0, 0), we always have A*0+B*0+C*0+d < 0.
  */
-const normal_vector: [(Float, Float, Float); 8] = [
+const NORMAL_VECTOR: [(Float, Float, Float); 8] = [
     (-1.0, -1.0, -1.0), // normal vector of vertical bisector plane of (-0.5, -0.5, -0.5) and (0,0,0)
     (1.0, -1.0, -1.0), // (0.5,  -0.5, -0.5) and (0,0,0)
     (-1.0, 1.0, -1.0), // (-0.5, 0.5, -0.5)  and (0,0,0)
@@ -58,7 +58,7 @@ const normal_vector: [(Float, Float, Float); 8] = [
   * d = -(A*x_m + B*y_m + C*z_m), in which (A,B,C) is normal vector (such as (-1, -1, -1) ),
   * (x_m, y_m, z_m) is middle pointer (such as (-1/4, -1/4, -1/4)).
   */
-const d: Float = -3.0 / 4.0;
+const D: Float = -3.0 / 4.0;
 
 // voronoy analysis method for BCC lattice and cube lattice.
 pub fn voronoy_ans(xyzfile: &str, output: &str) {
@@ -231,13 +231,13 @@ fn voronoy(x: Float, y: Float, z: Float) -> (Inx, Inx, Inx) {
 
     let mut lat_coord_x = 2 * lat_coord_x; // x is doubled.
 
-    if normal_vector[flag_index].0 * delta_x +
-        normal_vector[flag_index].1 * delta_y +
-        normal_vector[flag_index].2 * delta_z + d >= 0.0 {
+    if NORMAL_VECTOR[flag_index].0 * delta_x +
+        NORMAL_VECTOR[flag_index].1 * delta_y +
+        NORMAL_VECTOR[flag_index].2 * delta_z + D >= 0.0 {
         /* belongs to major lattice. */
-        lat_coord_x += offset[flag_index].0;
-        lat_coord_y += offset[flag_index].1;
-        lat_coord_z += offset[flag_index].2;
+        lat_coord_x += OFFSET[flag_index].0;
+        lat_coord_y += OFFSET[flag_index].1;
+        lat_coord_z += OFFSET[flag_index].2;
     }
     return (lat_coord_x, lat_coord_y, lat_coord_z);
 }
