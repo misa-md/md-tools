@@ -1,7 +1,10 @@
 use std::f32;
 use std::fs::File;
-use xyzio::Reader;
+use std::io::{BufWriter, Write};
+use std::path::Path;
 use std::collections::BTreeMap;
+use xyzio::Reader;
+use std::error::Error;
 
 type Float = f32;
 type Inx = i32;
@@ -74,10 +77,11 @@ pub fn voronoy_ans(xyzfile: &str, output: &str) {
                 println!("bad atoms size");
                 return;
             }
+
             // do analysis
             let size_dim = cube_root(atoms_size / 2);
             if size_dim != 0 { // it is a cube box
-                do_analysis(size_dim, size_dim, size_dim, &mut snapshot.atoms);
+                do_analysis_wrapper(output, size_dim, size_dim, size_dim, &snapshot);
             } else {
                 let (size_x, size_y, size_z) = get_box_size(&snapshot.atoms);
                 if size_x == 0 || size_y == 0 || size_z == 0 {
@@ -87,10 +91,25 @@ pub fn voronoy_ans(xyzfile: &str, output: &str) {
                 if size_x * size_y * size_z != atoms_size {
                     println!("Warning: box size ({},{},{}) not match atoms size.", size_x, size_y, size_z);
                 }
-                do_analysis(size_x, size_y, size_z, &mut snapshot.atoms);
+                do_analysis_wrapper(output, size_x, size_y, size_z, &snapshot);
             }
         }
     }
+}
+
+fn do_analysis_wrapper(output: &str, size_x: usize, size_y: usize, size_z: usize, mut snapshot: &xyzio::Snapshot) {
+    // prepare file
+    let path = Path::new(output);
+    let display = path.display();
+
+    // Open a file in write-only mode, returns `io::Result<File>`
+    let mut file = match File::create(&path) {
+        Err(why) => panic!("couldn't create {}: {}", display, why.description()),
+        Ok(file) => file,
+    };
+    let mut writer = BufWriter::new(file);
+    do_analysis(&mut writer, size_x, size_y, size_z, &snapshot.atoms);
+    writer.flush().unwrap();
 }
 
 // return the box size of simulation box to calculate 1D lattice index.
@@ -155,7 +174,7 @@ fn get_box_size(atoms: &Vec<xyzio::Atom>) -> (usize, usize, usize) {
 
 // in do_analysis, calculate atom's occupation by box size and its lattice index,
 // then atoms with >= 2 occupation will be logged.
-fn do_analysis(box_x_size: usize, box_y_size: usize, box_z_size: usize, atoms: &Vec<xyzio::Atom>) {
+fn do_analysis(writer: &mut BufWriter<File>, box_x_size: usize, box_y_size: usize, box_z_size: usize, atoms: &Vec<xyzio::Atom>) {
     // scale to lattice const unit.
     let mut atoms_lat_map = BTreeMap::new();
 
@@ -174,15 +193,15 @@ fn do_analysis(box_x_size: usize, box_y_size: usize, box_z_size: usize, atoms: &
             Some(&atom_index) => {
                 if atom_index == -1 {
                     // output i self only
-                    println!("atom: {},{},{},{},{}", atoms[i].element, global_index,
-                             atoms[i].x, atoms[i].y, atoms[i].z);
+                    writer.write(format!("{},{},{},{}\n", atoms[i].element,
+                                         atoms[i].x, atoms[i].y, atoms[i].z).as_bytes()).unwrap();
                 } else {
                     // output i self and data indexed in map
-                    println!("atom: {},{},{},{},{}", atoms[atom_index as usize].element, global_index,
-                             atoms[atom_index as usize].x, atoms[atom_index as usize].y,
-                             atoms[atom_index as usize].z);
-                    println!("atom: {},{},{},{},{}", atoms[i].element, global_index,
-                             atoms[i].x, atoms[i].y, atoms[i].z);
+                    writer.write(format!("{},{},{},{}\n", atoms[atom_index as usize].element,
+                                         atoms[atom_index as usize].x, atoms[atom_index as usize].y,
+                                         atoms[atom_index as usize].z).as_bytes()).unwrap();
+                    writer.write(format!("{},{},{},{}\n", atoms[i].element,
+                                         atoms[i].x, atoms[i].y, atoms[i].z).as_bytes()).unwrap();
                     atoms_lat_map.insert(global_index, -1); // first already write
                 }
             }
