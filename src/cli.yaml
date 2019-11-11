@@ -5,6 +5,11 @@ subcommands:
   - conv: # convert to tex or xyz format.
       about: convert binary MD results to text files.
       args:
+          - dry:
+              short: d
+              long: dry
+              help: Do everything except actually process files
+              takes_value: false
           - input:
               short: i
               long: input
