@@ -7,6 +7,8 @@ mod ffi;
 mod xyz_parser;
 mod text_parser;
 
+mod ans { pub mod voronoy; }
+
 fn main() {
     use clap::App;
 
@@ -73,7 +75,11 @@ fn parse_convert(matches: &&clap::ArgMatches) {
 }
 
 fn parse_ans(matches: &&clap::ArgMatches) {
-    // todo
+    let input = matches.value_of("input").unwrap();
+    let output = matches.value_of("output").unwrap();
+    // todo method
+    // todo, now only xyz format input is supported
+    ans::voronoy::voronoy_ans(input, output)
 }
 
 fn mk_parse(format: &str, ranks: u32, input: &str, output: &str) {
