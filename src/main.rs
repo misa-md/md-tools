@@ -1,6 +1,8 @@
 #[macro_use]
 extern crate clap;
 
+use std::path::Path;
+
 mod ffi;
 mod xyz_parser;
 mod text_parser;
@@ -37,10 +39,31 @@ fn parse_convert(matches: &&clap::ArgMatches) {
         println!("unsupported format {}.", format);
         return;
     }
-    let input = matches.value_of("input").unwrap();
-    let output = matches.value_of("output").unwrap();
 
-    mk_parse(format, ranks, input, output);
+    let output = matches.value_of("output").unwrap();
+    let mut input_files = Vec::new();
+    if let Some(arg_input) = matches.values_of("input") {
+        for in_file in arg_input {
+            input_files.push(in_file);
+        }
+    }
+
+    if input_files.len() == 0 {
+        println!("no matching input files");
+        return;
+    } else if input_files.len() == 1 {
+        mk_parse(format, ranks, input_files[0], output);
+    } else {
+        for input_file in input_files {
+            let input_path = Path::new(input_file);
+
+            println!("converting file {}", input_file);
+            let output_suffix = input_path.file_name().unwrap().to_str().unwrap();
+            let output_file_path = format!("{}.{}", output, output_suffix);
+            mk_parse(format, ranks, input_file, output_file_path.as_str());
+            println!("file {} converted, saved at {}", input_file, output_file_path.as_str());
+        }
+    }
 }
 
 fn parse_ans(matches: &&clap::ArgMatches) {
