@@ -44,7 +44,8 @@ subcommands:
                 short: i
                 long: input
                 required: true
-                help: Sets the filename of input file
+                multiple: true
+                help: Sets the filename of input files
                 takes_value: true
           - output:
                 short: o
