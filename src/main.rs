@@ -75,11 +75,31 @@ fn parse_convert(matches: &&clap::ArgMatches) {
 }
 
 fn parse_ans(matches: &&clap::ArgMatches) {
-    let input = matches.value_of("input").unwrap();
     let output = matches.value_of("output").unwrap();
+    let mut input_files = Vec::new();
+    if let Some(arg_input) = matches.values_of("input") {
+        for in_file in arg_input {
+            input_files.push(in_file);
+        }
+    }
+
+    if input_files.len() == 0 {
+        println!("no matching input files");
+        return;
+    } else if input_files.len() == 1 {
+        ans::voronoy::voronoy_ans(input_files[0], output)
+    } else {
+        for input_file in input_files {
+            let input_path = Path::new(input_file);
+            println!("analysing file {}", input_file);
+            let output_suffix = input_path.file_name().unwrap().to_str().unwrap();
+            let output_file_path = format!("{}.{}", output, output_suffix);
+            ans::voronoy::voronoy_ans(input_file, output_file_path.as_str());
+            println!("file {} analysis, saved at {}", input_file, output_file_path.as_str());
+        }
+    }
     // todo method
     // todo, now only xyz format input is supported
-    ans::voronoy::voronoy_ans(input, output)
 }
 
 fn mk_parse(format: &str, ranks: u32, input: &str, output: &str) {
