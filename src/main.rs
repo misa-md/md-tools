@@ -7,7 +7,7 @@ mod ffi;
 mod xyz_parser;
 mod text_parser;
 
-mod ans { pub mod voronoy; }
+mod ans;
 
 fn main() {
     use clap::App;
@@ -83,18 +83,24 @@ fn parse_ans(matches: &&clap::ArgMatches) {
         }
     }
 
+    let mut input_from_minio: bool = false;
+    if matches.is_present("input-from-minio") {
+        println!("Now we will read input file from minio or AWS s3");
+        input_from_minio = true;
+    }
+
     if input_files.len() == 0 {
         println!("no matching input files");
         return;
     } else if input_files.len() == 1 {
-        ans::voronoy::voronoy_ans(input_files[0], output)
+        ans::voronoy::voronoy_ans_wrapper(input_files[0], output, input_from_minio)
     } else {
         for input_file in input_files {
             let input_path = Path::new(input_file);
             println!("analysing file {}", input_file);
             let output_suffix = input_path.file_name().unwrap().to_str().unwrap();
             let output_file_path = format!("{}.{}", output, output_suffix);
-            ans::voronoy::voronoy_ans(input_file, output_file_path.as_str());
+            ans::voronoy::voronoy_ans_wrapper(input_file, output_file_path.as_str(), input_from_minio);
             println!("file {} analysis, saved at {}", input_file, output_file_path.as_str());
         }
     }
