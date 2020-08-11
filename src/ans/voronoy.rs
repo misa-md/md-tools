@@ -6,6 +6,8 @@ use std::collections::BTreeMap;
 use xyzio::Reader;
 use std::error::Error;
 
+use crate::ans::minio_input::voronoy_ans_minio;
+
 type Float = f32;
 type Inx = i32;
 
@@ -59,6 +61,16 @@ const NORMAL_VECTOR: [(Float, Float, Float); 8] = [
   * (x_m, y_m, z_m) is middle pointer (such as (-1/4, -1/4, -1/4)).
   */
 const D: Float = -3.0 / 4.0;
+
+// wrap function for calling voronoy_ans, select to read from
+// minio or local file system based in input config.
+pub fn voronoy_ans_wrapper(xyzfile: &str, output: &str, input_from_minio: bool) {
+    if input_from_minio {
+        voronoy_ans_minio(xyzfile, output);
+    } else {
+        voronoy_ans(xyzfile, output);
+    }
+}
 
 // voronoy analysis method for BCC lattice and cube lattice.
 pub fn voronoy_ans(xyzfile: &str, output: &str) {
