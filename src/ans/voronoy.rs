@@ -1,10 +1,13 @@
-use std::f32;
+use std::{f32, io};
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::Path;
 use std::collections::BTreeMap;
 use xyzio::Reader;
 use std::error::Error;
+
+use crate::ans::minio_input::voronoy_ans_minio;
+use crate::ans::libminio_rw;
 
 type Float = f32;
 type Inx = i32;
@@ -60,9 +63,31 @@ const NORMAL_VECTOR: [(Float, Float, Float); 8] = [
   */
 const D: Float = -3.0 / 4.0;
 
+// wrap function for calling voronoy_ans, select to read from
+// minio or local file system based in input config.
+pub fn voronoy_ans_wrapper(xyzfile: &str, output: &str, input_from_minio: bool) {
+    if input_from_minio {
+        let (mut data, data_ptr) = voronoy_ans_minio(xyzfile);
+        if data.len() != 0 {
+            let on_data_loaded = |atoms_size: usize| {
+                unsafe {
+                    libminio_rw::ReleaseMinioFile(data_ptr);
+                };
+                println!("atom size is {}", atoms_size);
+            };
+            voronoy_ans(&mut data, output, on_data_loaded);
+        }
+    } else {
+        let mut input = File::open(xyzfile).unwrap(); // fixme: check file existence
+        fn on_file_data_read(atoms_size: usize) {}
+        voronoy_ans(&mut input.by_ref(), output, on_file_data_read);
+    }
+}
+
 // voronoy analysis method for BCC lattice and cube lattice.
-pub fn voronoy_ans(xyzfile: &str, output: &str) {
-    let input = File::open(xyzfile).unwrap();
+pub fn voronoy_ans<R: ?Sized>(input: &mut R, output: &str, on_data_loaded: impl Fn(usize))
+    where R: io::Read
+{
     let mut reader = Reader::new(input);
     // todo read atom one by one and compute its index lattice.
     let snapshot_result = reader.read_snapshot();
@@ -73,6 +98,7 @@ pub fn voronoy_ans(xyzfile: &str, output: &str) {
         }
         Ok(mut snapshot) => {
             let atoms_size = snapshot.size();
+            on_data_loaded(atoms_size);
             if atoms_size % 2 != 0 { // due to BCC lattice
                 println!("bad atoms size");
                 return;

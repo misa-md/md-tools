@@ -47,6 +47,11 @@ subcommands:
                 multiple: true
                 help: Sets the filename of input files
                 takes_value: true
+          - input-from-minio:
+              short: M
+              long: input-from-minio
+              help: Read input files from minio or aws s3 server
+              takes_value: false
           - output:
                 short: o
                 long: output
