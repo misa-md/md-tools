@@ -13,8 +13,9 @@ fn main() {
     use clap::App;
 
     let yml = load_yaml!("cli.yaml");
-    let matches = App::from_yaml(yml)
+    let matches = App::from(yml)
         .setting(clap::AppSettings::ArgRequiredElseHelp)
+        .setting(clap::AppSettings::ColoredHelp)
         .version(crate_version!())
         .author(crate_authors!())
         .get_matches();
@@ -31,7 +32,7 @@ fn main() {
 }
 
 fn parse_convert(matches: &&clap::ArgMatches) {
-    let ranks = value_t!(matches, "ranks", u32).unwrap_or(0);
+    let ranks = matches.value_of_t("ranks").unwrap_or(0);
     if ranks <= 0 {
         println!("unsupported ranks value.");
         return;
