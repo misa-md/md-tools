@@ -10,5 +10,5 @@ updates:
     schedule:
       interval: "daily"
     commit-message:
-      # Prefix all commit messages with "npm"
-      prefix: "build(npm): "
+      # Prefix all commit messages with "cargo"
+      prefix: "build(cargo): "
