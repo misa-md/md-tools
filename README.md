@@ -1,6 +1,6 @@
 # md-tools
 
-tools for Crystal MD
+tools for MISA-MD and Crystal MD
 
 ## Build
 Make sure [go](https://golang.org) is installed before building.  

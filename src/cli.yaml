@@ -1,5 +1,5 @@
 name: md-tools
-about: Crystal MD tools, compatible with Crystal MD v0.3.x and v0.4.x.
+about: MISA-MD tools, compatible with MISA-MD (or Crystal MD) v0.3.x, v0.4.x and later versions.
 
 subcommands:
   - conv: # convert to tex or xyz format.
