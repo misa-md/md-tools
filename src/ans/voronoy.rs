@@ -5,9 +5,8 @@ use std::path::Path;
 use std::collections::BTreeMap;
 use xyzio::Reader;
 use std::error::Error;
+use crate::ans::analysis::BoxConfig;
 
-use crate::ans::minio_input::voronoy_ans_minio;
-use crate::ans::libminio_rw;
 
 type Float = f32;
 type Inx = i32;
@@ -63,29 +62,10 @@ const NORMAL_VECTOR: [(Float, Float, Float); 8] = [
   */
 const D: Float = -3.0 / 4.0;
 
-// wrap function for calling voronoy_ans, select to read from
-// minio or local file system based in input config.
-pub fn voronoy_ans_wrapper(xyzfile: &str, output: &str, input_from_minio: bool) {
-    if input_from_minio {
-        let (mut data, data_ptr) = voronoy_ans_minio(xyzfile);
-        if data.len() != 0 {
-            let on_data_loaded = |atoms_size: usize| {
-                unsafe {
-                    libminio_rw::ReleaseMinioFile(data_ptr);
-                };
-                println!("atom size is {}", atoms_size);
-            };
-            voronoy_ans(&mut data, output, on_data_loaded);
-        }
-    } else {
-        let mut input = File::open(xyzfile).unwrap(); // fixme: check file existence
-        fn on_file_data_read(atoms_size: usize) {}
-        voronoy_ans(&mut input.by_ref(), output, on_file_data_read);
-    }
-}
 
 // voronoy analysis method for BCC lattice and cube lattice.
-pub fn voronoy_ans<R: ?Sized>(input: &mut R, output: &str, on_data_loaded: impl Fn(usize))
+// todo: on data read error
+pub fn voronoy_ans<R: ?Sized>(input: &mut R, output: &str, on_data_loaded: impl Fn(usize), box_config: &BoxConfig)
     where R: io::Read
 {
     let mut reader = Reader::new(input);
@@ -99,26 +79,43 @@ pub fn voronoy_ans<R: ?Sized>(input: &mut R, output: &str, on_data_loaded: impl 
         Ok(mut snapshot) => {
             let atoms_size = snapshot.size();
             on_data_loaded(atoms_size);
-            if atoms_size % 2 != 0 { // due to BCC lattice
+            if atoms_size % 2 != 0 { // due to feature of BCC lattice
                 println!("bad atoms size");
                 return;
             }
 
-            // do analysis
-            let size_dim = cube_root(atoms_size / 2);
-            if size_dim != 0 { // it is a cube box
-                do_analysis_wrapper(output, size_dim, size_dim, size_dim, &snapshot);
+            // determine box size
+            let (mut box_size_x, mut box_size_y, mut box_size_z) = (0, 0, 0);
+            if box_config.box_size.len() == 0 {
+                // automatically determine calculate box size via atoms position
+                let size_dim = cube_root(atoms_size / 2);
+                if size_dim != 0 { // it is a cube box
+                    box_size_x = size_dim;
+                    box_size_y = size_dim;
+                    box_size_z = size_dim;
+                } else {
+                    let (_size_x, _size_y, _size_z) = auto_get_box_size(&snapshot.atoms);
+                    box_size_x = _size_x;
+                    box_size_y = _size_y;
+                    box_size_z = _size_z;
+                }
             } else {
-                let (size_x, size_y, size_z) = get_box_size(&snapshot.atoms);
-                if size_x == 0 || size_y == 0 || size_z == 0 {
-                    println!("bad box size");
-                    return;
-                }
-                if size_x * size_y * size_z != atoms_size {
-                    println!("Warning: box size ({},{},{}) not match atoms size.", size_x, size_y, size_z);
-                }
-                do_analysis_wrapper(output, size_x, size_y, size_z, &snapshot);
+                box_size_x = box_config.box_size[0] as usize;
+                box_size_y = box_config.box_size[1] as usize;
+                box_size_z = box_config.box_size[2] as usize;
             }
+
+            // check box size
+            if box_size_x == 0 || box_size_y == 0 || box_size_z == 0 {
+                println!("bad box size");
+                return;
+            }
+            if box_size_x * box_size_y * box_size_z != atoms_size {
+                println!("Warning: box size ({},{},{}) not match atoms size.", box_size_x, box_size_y, box_size_z);
+                return;
+                }
+            // do analysis
+            do_analysis_wrapper(output, box_size_x, box_size_y, box_size_z, &snapshot);
         }
     }
 }
@@ -138,9 +135,10 @@ fn do_analysis_wrapper(output: &str, size_x: usize, size_y: usize, size_z: usize
     writer.flush().unwrap();
 }
 
-// return the box size of simulation box to calculate 1D lattice index.
-// if the box size in some dimension is not as desired, 0 will be return in the dimension.
-fn get_box_size(atoms: &Vec<xyzio::Atom>) -> (usize, usize, usize) {
+// By passing the atoms position list,
+// then we can get the box size of simulation box, which can be used to calculating 1D lattice index.
+// If the box size in some dimension is not as desired, 0 will be return in the dimension.
+fn auto_get_box_size(atoms: &Vec<xyzio::Atom>) -> (usize, usize, usize) {
     let mut x_min = f32::INFINITY; // todo can use f64 as float
     let mut y_min = f32::INFINITY;
     let mut z_min = f32::INFINITY;
@@ -307,7 +305,7 @@ mod get_box_size_tests {
             z: 9.0 * LATTICE_CONST,
         });
         // get lattice size in each dimension
-        let sizes = get_box_size(&atoms);
+        let sizes = auto_get_box_size(&atoms);
         assert_eq!(sizes.0, 2 * 2);
         assert_eq!(sizes.1, 5);
         assert_eq!(sizes.2, 1);
