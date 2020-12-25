@@ -90,8 +90,9 @@ fn parse_ans(matches: &&clap::ArgMatches) {
             box_size.push(l_size);
         }
     }
-    let box_config = ans::analysis::BoxConfig {
+    let mut box_config = ans::box_config::BoxConfig {
         box_size,
+        box_size_: (0,0,0)
     };
 
     let mut verbose_log: bool = false;
@@ -109,16 +110,16 @@ fn parse_ans(matches: &&clap::ArgMatches) {
         println!("no matching input files");
         return;
     } else if input_files.len() == 1 {
-        ans::analysis::voronoy_ans_wrapper(input_files[0], output, input_from_minio,
-                                           &box_config, verbose_log)
+        ans::analysis::analysis_wrapper(input_files[0], output, input_from_minio,
+                                        &mut box_config, verbose_log)
     } else {
         for input_file in input_files {
             let input_path = Path::new(input_file);
             println!("analysing file {}", input_file);
             let output_suffix = input_path.file_name().unwrap().to_str().unwrap();
             let output_file_path = format!("{}.{}", output, output_suffix);
-            ans::analysis::voronoy_ans_wrapper(input_file, output_file_path.as_str(),
-                                               input_from_minio, &box_config, verbose_log);
+            ans::analysis::analysis_wrapper(input_file, output_file_path.as_str(),
+                                               input_from_minio, &mut box_config, verbose_log);
             println!("file {} analysis, saved at {}", input_file, output_file_path.as_str());
         }
     }
