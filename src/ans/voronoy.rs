@@ -65,7 +65,8 @@ const D: Float = -3.0 / 4.0;
 
 // voronoy analysis method for BCC lattice and cube lattice.
 // todo: on data read error
-pub fn voronoy_ans<R: ?Sized>(input: &mut R, output: &str, on_data_loaded: impl Fn(usize), box_config: &BoxConfig)
+pub fn voronoy_ans<R: ?Sized>(input: &mut R, output: &str, on_data_loaded: impl Fn(usize),
+                              box_config: &BoxConfig, verbose: bool)
     where R: io::Read
 {
     let mut reader = Reader::new(input);
@@ -113,7 +114,10 @@ pub fn voronoy_ans<R: ?Sized>(input: &mut R, output: &str, on_data_loaded: impl 
             if box_size_x * box_size_y * box_size_z != atoms_size {
                 println!("Warning: box size ({},{},{}) not match atoms size.", box_size_x, box_size_y, box_size_z);
                 return;
-                }
+            }
+            if verbose {
+                println!("box size: [{},{},{}]", box_size_x, box_size_y, box_size_z);
+            }
             // do analysis
             do_analysis_wrapper(output, box_size_x, box_size_y, box_size_z, &snapshot);
         }
