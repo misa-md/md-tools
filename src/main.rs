@@ -84,6 +84,16 @@ fn parse_ans(matches: &&clap::ArgMatches) {
         }
     }
 
+    let mut box_size: Vec<u64> = Vec::new();
+    if matches.is_present("box-size") {
+        for l_size in matches.values_of_t::<u64>("box-size").unwrap() {
+            box_size.push(l_size);
+        }
+    }
+    let box_config = ans::analysis::BoxConfig {
+        box_size,
+    };
+
     let mut input_from_minio: bool = false;
     if matches.is_present("input-from-minio") {
         println!("Now we will read input file from minio or AWS s3");
@@ -94,14 +104,14 @@ fn parse_ans(matches: &&clap::ArgMatches) {
         println!("no matching input files");
         return;
     } else if input_files.len() == 1 {
-        ans::voronoy::voronoy_ans_wrapper(input_files[0], output, input_from_minio)
+        ans::analysis::voronoy_ans_wrapper(input_files[0], output, input_from_minio, &box_config)
     } else {
         for input_file in input_files {
             let input_path = Path::new(input_file);
             println!("analysing file {}", input_file);
             let output_suffix = input_path.file_name().unwrap().to_str().unwrap();
             let output_file_path = format!("{}.{}", output, output_suffix);
-            ans::voronoy::voronoy_ans_wrapper(input_file, output_file_path.as_str(), input_from_minio);
+            ans::analysis::voronoy_ans_wrapper(input_file, output_file_path.as_str(), input_from_minio, &box_config);
             println!("file {} analysis, saved at {}", input_file, output_file_path.as_str());
         }
     }

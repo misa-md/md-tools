@@ -52,6 +52,16 @@ subcommands:
               long: input-from-minio
               help: Read input files from minio or aws s3 server
               takes_value: false
+          - box-size:
+                short: b
+                long: box-size
+                multiple: true
+                help: simulation box size. Use auto detection if not specified.
+                takes_value: true
+                value_names:
+                  - x
+                  - y
+                  - z
           - output:
                 short: o
                 long: output
