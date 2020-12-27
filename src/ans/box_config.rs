@@ -5,7 +5,7 @@ use crate::ans::voronoy;
  */
 
 pub struct BoxConfig {
-    pub box_size: Vec<u64>,
+    pub input_box_size: Vec<u64>,
     // from input, length can be 0
     pub box_size_: (usize, usize, usize), // box size after determination
 }
@@ -19,7 +19,7 @@ pub fn config_simulation_box(snapshot: &xyzio::Snapshot, box_config: &mut BoxCon
     }
 
     // determine box size
-    if box_config.box_size.len() == 0 {
+    if box_config.input_box_size.len() == 0 {
         // automatically determine calculate box size via atoms position
         let size_dim = cube_root(atoms_size / 2);
         if size_dim != 0 { // it is a cube box
@@ -28,7 +28,7 @@ pub fn config_simulation_box(snapshot: &xyzio::Snapshot, box_config: &mut BoxCon
             box_config.box_size_ = auto_get_box_size(&snapshot.atoms);
         }
     } else {
-        box_config.box_size_ = (box_config.box_size[0] as usize, box_config.box_size[1] as usize, box_config.box_size[2] as usize);
+        box_config.box_size_ = (box_config.input_box_size[0] as usize, box_config.input_box_size[1] as usize, box_config.input_box_size[2] as usize);
     }
 
     // check box size
