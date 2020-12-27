@@ -47,11 +47,36 @@ subcommands:
                 multiple: true
                 help: Sets the filename of input files
                 takes_value: true
+          - verbose:
+                short: v
+                long: verbose
+                help: show verbose log
+                takes_value: false
           - input-from-minio:
               short: M
               long: input-from-minio
               help: Read input files from minio or aws s3 server
               takes_value: false
+          - box-start:
+                short: S
+                long: box-start
+                multiple: true
+                help: start position of simulation box for construction a perfect lattice box (default auto)
+                takes_value: true
+                value_names:
+                  - x
+                  - y
+                  - z
+          - box-size:
+                short: b
+                long: box-size
+                multiple: true
+                help: simulation box size. Use auto detection if not specified.
+                takes_value: true
+                value_names:
+                  - x
+                  - y
+                  - z
           - output:
                 short: o
                 long: output
