@@ -84,9 +84,7 @@ fn auto_get_box_size(atoms: &Vec<xyzio::Atom>) -> (usize, usize, usize) {
         }
     }
 
-    let min_index = voronoy::voronoy(x_min, y_min, z_min);
-    let max_index = voronoy::voronoy(x_max, y_max, z_max);
-    let (size_x_, size_y_, size_z_) = (max_index.0 - min_index.0, max_index.1 - min_index.1, max_index.2 - min_index.2);
+    let (size_x_, size_y_, size_z_) = voronoy::voronoy(x_max - x_min, y_max - y_min, z_max - z_min);
     let mut sizes = (0, 0, 0);
 
     if size_x_ < 0 {
