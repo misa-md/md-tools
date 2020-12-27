@@ -91,8 +91,8 @@ fn parse_ans(matches: &&clap::ArgMatches) {
         }
     }
     let mut box_config = ans::box_config::BoxConfig {
-        box_size,
-        box_size_: (0,0,0)
+        input_box_size: box_size,
+        box_size_: (0, 0, 0),
     };
 
     let mut verbose_log: bool = false;
