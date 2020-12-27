@@ -5,7 +5,7 @@ use std::path::Path;
 use std::collections::BTreeMap;
 use std::error::Error;
 
-type Float = f32;
+pub type Float = f32;
 type Inx = i32;
 
 pub const LATTICE_CONST: Float = 2.85532;
@@ -60,7 +60,7 @@ const NORMAL_VECTOR: [(Float, Float, Float); 8] = [
 const D: Float = -3.0 / 4.0;
 
 
-pub fn do_analysis_wrapper(output: &str, size_x: usize, size_y: usize, size_z: usize, mut snapshot: &xyzio::Snapshot) {
+pub fn do_analysis_wrapper(output: &str, box_size: (usize, usize, usize), box_start: (Float, Float, Float), mut snapshot: &xyzio::Snapshot) {
     // prepare file
     let path = Path::new(output);
     let display = path.display();
@@ -71,13 +71,13 @@ pub fn do_analysis_wrapper(output: &str, size_x: usize, size_y: usize, size_z: u
         Ok(file) => file,
     };
     let mut writer = BufWriter::new(file);
-    do_analysis(&mut writer, size_x, size_y, size_z, &snapshot.atoms);
+    do_analysis(&mut writer, box_size, box_start, &snapshot.atoms);
     writer.flush().unwrap();
 }
 
 // in do_analysis, calculate atom's occupation by box size and its lattice index,
 // then atoms with >= 2 occupation will be logged.
-fn do_analysis(writer: &mut BufWriter<File>, box_x_size: usize, box_y_size: usize, box_z_size: usize, atoms: &Vec<xyzio::Atom>) {
+fn do_analysis(writer: &mut BufWriter<File>, (box_x_size, box_y_size, box_z_size): (usize, usize, usize), (box_x_start, box_y_start, box_z_start): (Float, Float, Float), atoms: &Vec<xyzio::Atom>) {
     // scale to lattice const unit.
     let mut atoms_lat_map = BTreeMap::new();
 
@@ -85,7 +85,7 @@ fn do_analysis(writer: &mut BufWriter<File>, box_x_size: usize, box_y_size: usiz
     for i in 0..atoms_size {
         // calculate lattice index of each atom
         // note: x is doubled.
-        let (x, y, z) = voronoy(atoms[i].x, atoms[i].y, atoms[i].z);
+        let (x, y, z) = voronoy(atoms[i].x - box_x_start, atoms[i].y - box_y_start, atoms[i].z - box_z_start);
         // todo mode box_x/y/z_size if index is large then box size (todo for user specified box size, not auto size).
         // todo or mode box_x/y/z_size if real box coord not starting from 0.
         // which also means: make x,y,z belongs [0, box_x/y/z_size).
@@ -95,17 +95,17 @@ fn do_analysis(writer: &mut BufWriter<File>, box_x_size: usize, box_y_size: usiz
         match atoms_lat_map.get(&global_index) {
             Some(&atom_index) => {
                 if atom_index == -1 {
-                    // output i self only
+                    // output itself only (not write first item)
                     writer.write(format!("{},{},{},{}\n", atoms[i].element,
                                          atoms[i].x, atoms[i].y, atoms[i].z).as_bytes()).unwrap();
                 } else {
-                    // output i self and data indexed in map
+                    // output i self and first item at the same index in map
                     writer.write(format!("{},{},{},{}\n", atoms[atom_index as usize].element,
                                          atoms[atom_index as usize].x, atoms[atom_index as usize].y,
                                          atoms[atom_index as usize].z).as_bytes()).unwrap();
                     writer.write(format!("{},{},{},{}\n", atoms[i].element,
                                          atoms[i].x, atoms[i].y, atoms[i].z).as_bytes()).unwrap();
-                    atoms_lat_map.insert(global_index, -1); // first already write
+                    atoms_lat_map.insert(global_index, -1); // has already written
                 }
             }
             None => {
