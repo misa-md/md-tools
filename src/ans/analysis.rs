@@ -52,11 +52,7 @@ pub fn read_atoms_and_analysis<R: ?Sized>(input: &mut R, output: &str, on_data_l
             on_data_loaded(atoms_size);
             if config_simulation_box(&snapshot, box_config, verbose) {
                 // do analysis
-                do_analysis_wrapper(output,
-                                    box_config.box_size_.0,
-                                    box_config.box_size_.1,
-                                    box_config.box_size_.2,
-                                    &snapshot);
+                do_analysis_wrapper(output, box_config.box_size_, box_config.box_start, &snapshot);
             } else {
                 println!("config simulation box failed");
             }

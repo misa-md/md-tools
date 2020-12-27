@@ -57,6 +57,16 @@ subcommands:
               long: input-from-minio
               help: Read input files from minio or aws s3 server
               takes_value: false
+          - box-start:
+                short: S
+                long: box-start
+                multiple: true
+                help: start position of simulation box for construction a perfect lattice box (default auto)
+                takes_value: true
+                value_names:
+                  - x
+                  - y
+                  - z
           - box-size:
                 short: b
                 long: box-size

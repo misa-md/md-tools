@@ -5,9 +5,11 @@ use crate::ans::voronoy;
  */
 
 pub struct BoxConfig {
+    pub input_box_start: Vec<voronoy::Float>,
     pub input_box_size: Vec<u64>,
     // from input, length can be 0
     pub box_size_: (usize, usize, usize), // box size after determination
+    pub box_start: (voronoy::Float, voronoy::Float, voronoy::Float), // start position of box
 }
 
 // set simulation box config and return status: ture for setting ok, false for not ok.
@@ -44,6 +46,15 @@ pub fn config_simulation_box(snapshot: &xyzio::Snapshot, box_config: &mut BoxCon
     if verbose {
         println!("box size: [{},{},{}]", box_size_x, box_size_y, box_size_z);
     }
+
+    // determine box starting position
+    if box_config.input_box_start.len() == 3 {
+        box_config.box_start = (box_config.input_box_start[0], box_config.input_box_start[1], box_config.input_box_start[2]);
+    } else {
+        // auto determine
+        box_config.box_start = (0.0, 0.0, 0.0);
+    }
+
     return true;
 }
 

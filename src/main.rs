@@ -84,6 +84,12 @@ fn parse_ans(matches: &&clap::ArgMatches) {
         }
     }
 
+    let mut box_start: Vec<ans::voronoy::Float> = Vec::new();
+    if matches.is_present("box-start") {
+        for start in matches.values_of_t::<ans::voronoy::Float>("box-start").unwrap() {
+            box_start.push(start);
+        }
+    }
     let mut box_size: Vec<u64> = Vec::new();
     if matches.is_present("box-size") {
         for l_size in matches.values_of_t::<u64>("box-size").unwrap() {
@@ -91,8 +97,10 @@ fn parse_ans(matches: &&clap::ArgMatches) {
         }
     }
     let mut box_config = ans::box_config::BoxConfig {
+        input_box_start: box_start,
         input_box_size: box_size,
         box_size_: (0, 0, 0),
+        box_start: (0.0, 0.0, 0.0),
     };
 
     let mut verbose_log: bool = false;
