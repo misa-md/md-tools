@@ -123,7 +123,7 @@ fn auto_get_box_size(atoms: &Vec<xyzio::Atom>) -> (usize, usize, usize) {
 fn cube_root(n: usize) -> usize {
     let mut low = 1 as usize;
     let mut high = n;
-    let mut mid = n;
+    let mut mid;
     while low <= high {
         mid = (high + low) / 2;
         if n < mid * mid * mid {

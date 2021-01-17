@@ -127,7 +127,7 @@ fn parse_ans(matches: &&clap::ArgMatches) {
             let output_suffix = input_path.file_name().unwrap().to_str().unwrap();
             let output_file_path = format!("{}.{}", output, output_suffix);
             ans::analysis::analysis_wrapper(input_file, output_file_path.as_str(),
-                                               input_from_minio, &mut box_config, verbose_log);
+                                            input_from_minio, &mut box_config, verbose_log);
             println!("file {} analysis, saved at {}", input_file, output_file_path.as_str());
         }
     }
@@ -138,10 +138,10 @@ fn parse_ans(matches: &&clap::ArgMatches) {
 fn mk_parse(format: &str, ranks: u32, input: &str, output: &str) {
     match format {
         "xyz" => {
-            ffi::parse(input, output, ranks, xyz_parser::new_parser(output));
+            ffi::parse(input, output, ranks, xyz_parser::new_parser(output)).unwrap();
         }
         "text" => {
-            ffi::parse(input, output, ranks, text_parser::new_parser(output));
+            ffi::parse(input, output, ranks, text_parser::new_parser(output)).unwrap();
         }
         "db" => {}
         "def" => {}

@@ -24,14 +24,14 @@ impl ParseProgress for TextParser {
                                  atom.AtomId, atom.Step, atom.get_name_by_ele_name(), atom.InterType,
                                  atom.Location[0], atom.Location[1], atom.Location[2],
                                  atom.Velocity[0], atom.Velocity[1], atom.Velocity[2]);
-        self.output.write(fmt_string.as_bytes());
+        self.output.write(fmt_string.as_bytes()).unwrap();
         return 1 as i32;
     }
 
     //todo return Result<>
-    fn before_parsing(&mut self, output: &str) {
+    fn before_parsing(&mut self, _output: &str) {
         // write header.
-        self.output.write(b"id \tstep \ttype \tinter_type \tlocate.x \tlocate.y \tlocate.z \tv.x \tv.y \tv.z\n");
+        self.output.write(b"id \tstep \ttype \tinter_type \tlocate.x \tlocate.y \tlocate.z \tv.x \tv.y \tv.z\n").unwrap();
     }
 
     fn load_callback(&mut self) -> extern fn(*mut libc::c_void, OneAtomType) -> libc::c_int {
@@ -52,7 +52,7 @@ pub fn new_parser(filename: &str) -> TextParser {
         .open(filename);
 
     match file {
-        Ok(mut stream) => {
+        Ok(stream) => {
             return TextParser { output: stream };
         }
         Err(err) => {

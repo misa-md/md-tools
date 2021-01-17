@@ -28,7 +28,7 @@ pub fn analysis_wrapper(xyzfile: &str, output: &str, input_from_minio: bool, box
         }
     } else {
         let mut input = File::open(xyzfile).unwrap(); // fixme: check file existence
-        fn on_file_data_read(atoms_size: usize) {}
+        fn on_file_data_read(_atoms_size: usize) {}
         read_atoms_and_analysis(&mut input.by_ref(), output, on_file_data_read, box_config, verbose);
     }
 }
@@ -47,7 +47,7 @@ pub fn read_atoms_and_analysis<R: ?Sized>(input: &mut R, output: &str, on_data_l
         Err(e) => {
             println!("read input xyz file error: {:?}", e);
         }
-        Ok(mut snapshot) => {
+        Ok(snapshot) => {
             let atoms_size = snapshot.size();
             on_data_loaded(atoms_size);
             if config_simulation_box(&snapshot, box_config, verbose) {
