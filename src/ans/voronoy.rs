@@ -3,7 +3,6 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::Path;
 use std::collections::BTreeMap;
-use std::error::Error;
 
 pub type Float = f32;
 type Inx = i32;
@@ -63,14 +62,13 @@ const ANALYSIS_OUT_FILE_HEADER: &str = "type, lattice:x, lattice;y, lattice:z,\
  position:x, position:y, position:z\
 ";
 
-pub fn do_analysis_wrapper(output: &str, box_size: (usize, usize, usize), box_start: (Float, Float, Float), mut snapshot: &xyzio::Snapshot) {
+pub fn do_analysis_wrapper(output: &str, box_size: (usize, usize, usize), box_start: (Float, Float, Float), snapshot: &xyzio::Snapshot) {
     // prepare file
     let path = Path::new(output);
-    let display = path.display();
 
     // Open a file in write-only mode, returns `io::Result<File>`
-    let mut file = match File::create(&path) {
-        Err(why) => panic!("couldn't create {}: {}", display, why.description()),
+    let file = match File::create(&path) {
+        Err(why) => panic!("couldn't create {}: {}", path.display(), why.to_string()),
         Ok(file) => file,
     };
     let mut writer = BufWriter::new(file);
@@ -81,7 +79,7 @@ pub fn do_analysis_wrapper(output: &str, box_size: (usize, usize, usize), box_st
 
 // in do_analysis, calculate atom's occupation by box size and its lattice index,
 // then atoms with >= 2 occupation will be logged.
-fn do_analysis(writer: &mut BufWriter<File>, (box_x_size, box_y_size, box_z_size): (usize, usize, usize), (box_x_start, box_y_start, box_z_start): (Float, Float, Float), atoms: &Vec<xyzio::Atom>) {
+fn do_analysis(writer: &mut BufWriter<File>, (box_x_size, box_y_size, _box_z_size): (usize, usize, usize), (box_x_start, box_y_start, box_z_start): (Float, Float, Float), atoms: &Vec<xyzio::Atom>) {
     // scale to lattice const unit.
     let mut atoms_lat_map = BTreeMap::new();
 
@@ -118,7 +116,7 @@ fn do_analysis(writer: &mut BufWriter<File>, (box_x_size, box_y_size, box_z_size
     for i in 0..atoms_size {
         let global_index = i as Inx;
         match atoms_lat_map.get(&global_index) {
-            Some(&atom_index) => {
+            Some(&_index) => {
                 // skip
             }
             None => {

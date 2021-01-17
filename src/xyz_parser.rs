@@ -18,13 +18,13 @@ impl ParseProgress for XYZParser {
         let fmt_string = format!("{} \t{:.6} \t{:.6} \t{:.6}\n",
                                  atom.get_name_by_ele_name(),
                                  atom.Location[0], atom.Location[1], atom.Location[2]);
-        self.output.write(fmt_string.as_bytes());
+        self.output.write(fmt_string.as_bytes()).unwrap();
         self.atom_count += 1;
         return 1 as i32;
     }
 
-    fn before_parsing(&mut self, output: &str) {
-        self.output.seek(SeekFrom::Start(128));
+    fn before_parsing(&mut self, _output: &str) {
+        self.output.seek(SeekFrom::Start(128)).unwrap();
     }
 
     fn load_callback(&mut self) -> extern fn(*mut libc::c_void, OneAtomType) -> libc::c_int {
@@ -33,7 +33,7 @@ impl ParseProgress for XYZParser {
 
     fn finish_parsing(&mut self) {
         // write header.
-        self.output.seek(SeekFrom::Start(0));
+        self.output.seek(SeekFrom::Start(0)).unwrap();
         let fmt_string = format!("{}\n", self.atom_count);
         let written_size = self.output.write(fmt_string.as_bytes()).unwrap(); // size of data of atom count
         if written_size >= 128 {
@@ -42,7 +42,7 @@ impl ParseProgress for XYZParser {
             let left_size = 128 - written_size;
             let mut buf: Vec<u8> = vec!['C' as u8; left_size];
             buf[left_size - 1] = '\n' as u8;
-            self.output.write(buf.as_slice());
+            self.output.write(buf.as_slice()).unwrap();
         }
     }
 }
@@ -58,7 +58,7 @@ pub fn new_parser(filename: &str) -> XYZParser {
         .open(filename);
 
     match file {
-        Ok(mut stream) => {
+        Ok(stream) => {
             return XYZParser { output: stream, atom_count: 0 };
         }
         Err(err) => {

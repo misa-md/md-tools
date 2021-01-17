@@ -1,7 +1,5 @@
 use crate::ans::libminio_rw;
 use std::ffi::{CStr, CString};
-use xyzio::Reader;
-use std::ptr::null;
 
 pub fn voronoy_ans_minio(xyzfile: &str) -> (&[u8], *mut libc::c_char) {
     let file = CString::new(xyzfile).unwrap();
