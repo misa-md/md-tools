@@ -59,6 +59,9 @@ const NORMAL_VECTOR: [(Float, Float, Float); 8] = [
   */
 const D: Float = -3.0 / 4.0;
 
+const ANALYSIS_OUT_FILE_HEADER: &str = "type, lattice:x, lattice;y, lattice:z,\
+ position:x, position:y, position:z\
+";
 
 pub fn do_analysis_wrapper(output: &str, box_size: (usize, usize, usize), box_start: (Float, Float, Float), mut snapshot: &xyzio::Snapshot) {
     // prepare file
@@ -71,6 +74,7 @@ pub fn do_analysis_wrapper(output: &str, box_size: (usize, usize, usize), box_st
         Ok(file) => file,
     };
     let mut writer = BufWriter::new(file);
+    writer.write(ANALYSIS_OUT_FILE_HEADER.as_bytes()).unwrap();
     do_analysis(&mut writer, box_size, box_start, &snapshot.atoms);
     writer.flush().unwrap();
 }
@@ -96,16 +100,12 @@ fn do_analysis(writer: &mut BufWriter<File>, (box_x_size, box_y_size, box_z_size
             Some(&atom_index) => {
                 if atom_index == -1 {
                     // output itself only (not write first item)
-                    writer.write(format!("{},{},{},{}\n", atoms[i].element,
-                                         atoms[i].x, atoms[i].y, atoms[i].z).as_bytes()).unwrap();
+                    write_line(writer, global_index, &atoms[i], (box_x_size, box_y_size));
                 } else {
                     // output i self and first item at the same index in map
-                    writer.write(format!("{},{},{},{}\n", atoms[atom_index as usize].element,
-                                         atoms[atom_index as usize].x, atoms[atom_index as usize].y,
-                                         atoms[atom_index as usize].z).as_bytes()).unwrap();
-                    writer.write(format!("{},{},{},{}\n", atoms[i].element,
-                                         atoms[i].x, atoms[i].y, atoms[i].z).as_bytes()).unwrap();
-                    atoms_lat_map.insert(global_index, -1); // has already written
+                    write_line(writer, global_index, &atoms[atom_index as usize], (box_x_size, box_y_size));
+                    write_line(writer, global_index, &atoms[i], (box_x_size, box_y_size));
+                    atoms_lat_map.insert(global_index, -1); // tag it as "already written"
                 }
             }
             None => {
@@ -113,6 +113,38 @@ fn do_analysis(writer: &mut BufWriter<File>, (box_x_size, box_y_size, box_z_size
             }
         }
     }
+
+    // log vacancy
+    for i in 0..atoms_size {
+        let global_index = i as Inx;
+        match atoms_lat_map.get(&global_index) {
+            Some(&atom_index) => {
+                // skip
+            }
+            None => {
+                let atom = xyzio::Atom {
+                    element: "V".to_string(),
+                    x: 0.0,
+                    y: 0.0,
+                    z: 0.0,
+                };
+                write_line(writer, global_index, &atom, (box_x_size, box_y_size))
+            }
+        }
+    }
+}
+
+// write a line to file by passing global lattice index and atom information
+fn write_line(writer: &mut BufWriter<File>, global_index: Inx, atom: &xyzio::Atom, (box_x_size, box_y_size): (usize, usize)) {
+    let (_box_size_x, _box_size_y) = (box_x_size as Inx, box_y_size as Inx);
+    let lat_z = global_index / (2 * _box_size_x * _box_size_y);
+    let lat_left = global_index % (2 * _box_size_x * _box_size_y);
+    let lat_y = lat_left / (2 * _box_size_x);
+    let lat_x = lat_left % (2 * _box_size_x);
+    writer.write(format!("{}, {}, {}, {}, {}, {}, {}\n",
+                         atom.element,
+                         lat_x, lat_y, lat_z,
+                         atom.x, atom.y, atom.z).as_bytes()).unwrap();
 }
 
 /**
