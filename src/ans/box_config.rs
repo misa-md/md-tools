@@ -28,6 +28,8 @@ pub fn config_simulation_box(snapshot: &xyzio::Snapshot, box_config: &mut BoxCon
             box_config.box_size_ = (size_dim, size_dim, size_dim);
         } else {
             box_config.box_size_ = auto_get_box_size(&snapshot.atoms);
+            // here size x is doubled
+            box_config.box_size_.0 /= 2;
         }
     } else {
         box_config.box_size_ = (box_config.input_box_size[0] as usize, box_config.input_box_size[1] as usize, box_config.input_box_size[2] as usize);
@@ -39,7 +41,7 @@ pub fn config_simulation_box(snapshot: &xyzio::Snapshot, box_config: &mut BoxCon
         println!("bad box size");
         return false;
     }
-    if box_size_x * box_size_y * box_size_z != atoms_size {
+    if 2 * box_size_x * box_size_y * box_size_z != atoms_size {
         println!("Warning: box size ({},{},{}) not match atoms size.", box_size_x, box_size_y, box_size_z);
         return false;
     }
