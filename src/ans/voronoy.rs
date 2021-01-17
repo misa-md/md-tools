@@ -3,6 +3,7 @@ use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::Path;
 use std::collections::BTreeMap;
+use rayon::prelude::*;
 
 pub type Float = f32;
 type Inx = i32;
@@ -59,7 +60,7 @@ const NORMAL_VECTOR: [(Float, Float, Float); 8] = [
 const D: Float = -3.0 / 4.0;
 
 const ANALYSIS_OUT_FILE_HEADER: &str = "type, lattice:x, lattice;y, lattice:z,\
- position:x, position:y, position:z\
+ position:x, position:y, position:z\n\
 ";
 
 pub fn do_analysis_wrapper(output: &str, box_size: (usize, usize, usize), box_start: (Float, Float, Float), snapshot: &xyzio::Snapshot) {
@@ -79,12 +80,13 @@ pub fn do_analysis_wrapper(output: &str, box_size: (usize, usize, usize), box_st
 
 // in do_analysis, calculate atom's occupation by box size and its lattice index,
 // then atoms with >= 2 occupation will be logged.
-fn do_analysis(writer: &mut BufWriter<File>, (box_x_size, box_y_size, _box_z_size): (usize, usize, usize), (box_x_start, box_y_start, box_z_start): (Float, Float, Float), atoms: &Vec<xyzio::Atom>) {
-    // scale to lattice const unit.
-    let mut atoms_lat_map = BTreeMap::new();
-
+fn do_analysis(writer: &mut BufWriter<File>, (box_x_size, box_y_size, _): (usize, usize, usize), (box_x_start, box_y_start, box_z_start): (Float, Float, Float), atoms: &Vec<xyzio::Atom>) {
     let atoms_size = atoms.len();
-    for i in 0..atoms_size {
+
+    // calculate global index for each atom in parallel.
+    // variable `global_atom_indexes` saves the lattice index of each atom.
+    let mut global_atom_indexes: Vec<(Inx, usize)> = (0..atoms_size).into_par_iter().map(|i| {
+        // scale to lattice const unit.
         // calculate lattice index of each atom
         // note: x is doubled.
         let (x, y, z) = voronoy(atoms[i].x - box_x_start, atoms[i].y - box_y_start, atoms[i].z - box_z_start);
@@ -92,43 +94,45 @@ fn do_analysis(writer: &mut BufWriter<File>, (box_x_size, box_y_size, _box_z_siz
         // todo or mode box_x/y/z_size if real box coord not starting from 0.
         // which also means: make x,y,z belongs [0, box_x/y/z_size).
         // z * 2 * x_size * y_size  + y * 2 * x_size  + x;
-        let global_index = 2 * (box_x_size as Inx) * (z * box_y_size as Inx + y) + x;
+        (2 * (box_x_size as Inx) * (z * box_y_size as Inx + y) + x, i)
+    }).collect();
 
-        match atoms_lat_map.get(&global_index) {
-            Some(&atom_index) => {
-                if atom_index == -1 {
-                    // output itself only (not write first item)
-                    write_line(writer, global_index, &atoms[i], (box_x_size, box_y_size));
-                } else {
-                    // output i self and first item at the same index in map
-                    write_line(writer, global_index, &atoms[atom_index as usize], (box_x_size, box_y_size));
-                    write_line(writer, global_index, &atoms[i], (box_x_size, box_y_size));
-                    atoms_lat_map.insert(global_index, -1); // tag it as "already written"
-                }
-            }
-            None => {
-                atoms_lat_map.entry(global_index).or_insert(i as Inx);
-            }
-        }
-    }
+    // sort in parallel
+    global_atom_indexes.par_sort_by(|a, b| a.0.cmp(&b.0));
 
-    // log vacancy
-    for i in 0..atoms_size {
-        let global_index = i as Inx;
-        match atoms_lat_map.get(&global_index) {
-            Some(&_index) => {
-                // skip
+    // first pre atom metadata with the same lattice index.
+    // each item in this tuple: lattice index, atom array index
+    // and draft(means this lattice is not written to file before).
+    let mut pre_global_atom_index_data: (Inx, usize, bool) = (-1, 0, false);
+    let mut indexes_i: usize = 0;
+    // iterate all lattice point to search vacancies and interstitials
+    for (lat_index, atom_index) in global_atom_indexes {
+        if lat_index == pre_global_atom_index_data.0 {
+            // more than one atoms occupy one lattice, log it.
+            write_line(writer, lat_index, &atoms[atom_index], (box_x_size, box_y_size));
+            if pre_global_atom_index_data.2 {
+                // write the first atom with the same lattice id
+                write_line(writer, pre_global_atom_index_data.0, &atoms[pre_global_atom_index_data.1], (box_x_size, box_y_size));
             }
-            None => {
+            pre_global_atom_index_data.2 = false
+        } else if lat_index == pre_global_atom_index_data.0 + 1 {
+            // it is a new lattice
+            pre_global_atom_index_data = (lat_index, atom_index, true);
+        } else {
+            // It is also a new lattice, but it must skip something
+            // (skipped some lattices, log them as vacancy).
+            for k in (pre_global_atom_index_data.0 + 1)..lat_index {
                 let atom = xyzio::Atom {
                     element: "V".to_string(),
                     x: 0.0,
                     y: 0.0,
                     z: 0.0,
                 };
-                write_line(writer, global_index, &atom, (box_x_size, box_y_size))
+                write_line(writer, k, &atom, (box_x_size, box_y_size))
             }
+            pre_global_atom_index_data = (lat_index, atom_index, true);
         }
+        indexes_i += 1;
     }
 }
 
