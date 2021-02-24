@@ -4,6 +4,9 @@ use std::io::{BufWriter, Write};
 use std::path::Path;
 use std::collections::BTreeMap;
 use rayon::prelude::*;
+use xyzio::Atom;
+
+use crate::xyz::xyz_reader;
 
 pub type Float = f32;
 type Inx = i32;
@@ -63,7 +66,7 @@ const ANALYSIS_OUT_FILE_HEADER: &str = "type, lattice:x, lattice;y, lattice:z,\
  position:x, position:y, position:z\n\
 ";
 
-pub fn do_analysis_wrapper(output: &str, box_size: (usize, usize, usize), box_start: (Float, Float, Float), snapshot: &xyzio::Snapshot) {
+pub fn do_analysis_wrapper(output: &str, box_size: (usize, usize, usize), box_start: (Float, Float, Float), snapshot: &xyz_reader::Snapshot<Atom>) {
     // prepare file
     let path = Path::new(output);
 
