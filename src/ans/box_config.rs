@@ -1,4 +1,6 @@
 use crate::ans::voronoy;
+use crate::xyz::xyz_reader;
+use xyzio::Atom;
 
 /**
  * Created by genshen at 2020/12/25
@@ -13,7 +15,7 @@ pub struct BoxConfig {
 }
 
 // set simulation box config and return status: ture for setting ok, false for not ok.
-pub fn config_simulation_box(snapshot: &xyzio::Snapshot, box_config: &mut BoxConfig, verbose: bool) -> bool {
+pub fn config_simulation_box(snapshot: &xyz_reader::Snapshot<Atom>, box_config: &mut BoxConfig, verbose: bool) -> bool {
     let atoms_size = snapshot.size();
     if atoms_size % 2 != 0 { // due to feature of BCC lattice
         println!("bad atoms size");

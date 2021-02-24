@@ -7,8 +7,21 @@ use std::io;
 use std::io::prelude::BufRead;
 use std::iter::Iterator;
 
-use xyzio::{Snapshot, Atom};
 use rayon::prelude::*;
+use std::str::FromStr;
+use xyzio::Atom;
+use std::fmt::Debug;
+
+pub struct Snapshot<A> where A: FromStr {
+    pub comment: String,
+    pub atoms: Vec<A>,
+}
+
+impl<A: FromStr> Snapshot<A> {
+    pub fn size(&self) -> usize {
+        self.atoms.len()
+    }
+}
 
 pub struct Reader<R> {
     reader: io::BufReader<R>,
@@ -41,7 +54,7 @@ impl<R: io::Read> Reader<R> {
     }
 
     // read and parse data in xyz file in parallel.
-    pub fn read_snapshot(&mut self) -> Result<Snapshot, xyzio::Error> {
+    pub fn read_snapshot<A>(&mut self) -> Result<Snapshot<A>, xyzio::Error> where A: FromStr + Send, <A as FromStr>::Err: Debug {
         let reader = &mut self.reader;
 
         let num_atoms = parse_line!(reader, usize);
@@ -57,9 +70,8 @@ impl<R: io::Read> Reader<R> {
         }
 
         // parsing data in parallel.
-        // let mut atoms: Vec<Atom> = Vec::new();
         let atoms: Vec<_> = (0..num_atoms).into_par_iter().map(|i| {
-            atoms_lines[i].trim().parse::<Atom>().unwrap()
+            atoms_lines[i].trim().parse::<A>().unwrap()
         }).collect();
 
         Ok(Snapshot {
@@ -69,11 +81,16 @@ impl<R: io::Read> Reader<R> {
     }
 }
 
-impl<R: io::Read> Iterator for Reader<R> {
-    type Item = Snapshot;
+pub struct ItlReader<R> {
+    reader: Reader<R>
+}
+
+// next can only used for `Atom` type parsing.
+impl<R: io::Read> Iterator for ItlReader<R> {
+    type Item = Snapshot<Atom>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        self.read_snapshot().ok()
+        self.reader.read_snapshot().ok()
     }
 }
 
@@ -90,7 +107,7 @@ mod tests {
             O 4.0 3.0 6.0
             H 5.0 1.5 4.0";
         let mut reader = Reader::new(data);
-        let success = reader.read_snapshot();
+        let success = reader.read_snapshot::<Atom>();
         assert!(success.is_ok());
 
         let snapshot = success.unwrap();
@@ -111,8 +128,9 @@ mod tests {
             O 4.2 3.0 5.9
             H 5.0 1.6 4.0";
         let mut reader = Reader::new(data);
-        assert!(reader.next().is_some());
-        assert!(reader.next().is_some());
-        assert!(reader.next().is_none());
+        let mut itl_reader = ItlReader { reader };
+        assert!(itl_reader.next().is_some());
+        assert!(itl_reader.next().is_some());
+        assert!(itl_reader.next().is_none());
     }
 }
