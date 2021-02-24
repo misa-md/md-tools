@@ -8,6 +8,7 @@ mod xyz_parser;
 mod text_parser;
 
 mod ans;
+mod xyz;
 
 fn main() {
     use clap::App;

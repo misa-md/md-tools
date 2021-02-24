@@ -9,7 +9,7 @@ use crate::ans::minio_input::voronoy_ans_minio;
 use crate::ans::libminio_rw;
 use crate::ans::box_config::{BoxConfig, config_simulation_box};
 use crate::ans::voronoy::do_analysis_wrapper;
-use crate::ans::xyz_reader::Reader;
+use crate::xyz::xyz_reader::Reader;
 
 
 // wrap function for calling read_atoms_and_analysis,
