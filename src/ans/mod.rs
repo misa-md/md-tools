@@ -3,4 +3,3 @@ pub(crate) mod analysis;
 pub(crate) mod box_config;
 mod libminio_rw;
 mod minio_input;
-mod xyz_reader;
