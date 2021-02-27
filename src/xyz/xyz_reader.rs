@@ -54,7 +54,7 @@ impl<R: io::Read> Reader<R> {
     }
 
     // read and parse data in xyz file in parallel.
-    pub fn read_snapshot<A>(&mut self) -> Result<Snapshot<A>, xyzio::Error> where A: FromStr + Send, <A as FromStr>::Err: Debug {
+    pub fn read_snapshot<A>(&mut self) -> Result<Snapshot<A>, xyzio::Error> where A: FromStr + Send + Sync, <A as FromStr>::Err: Debug {
         let reader = &mut self.reader;
 
         let num_atoms = parse_line!(reader, usize);
@@ -74,10 +74,7 @@ impl<R: io::Read> Reader<R> {
             atoms_lines[i].trim().parse::<A>().unwrap()
         }).collect();
 
-        Ok(Snapshot {
-            comment: comment,
-            atoms: atoms,
-        })
+        Ok(Snapshot { comment, atoms })
     }
 }
 

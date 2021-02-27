@@ -8,6 +8,7 @@ mod xyz_parser;
 mod text_parser;
 
 mod ans;
+mod diff;
 mod xyz;
 
 fn main() {
@@ -27,6 +28,10 @@ fn main() {
     }
     if let Some(ref matches) = matches.subcommand_matches("ans") {
         parse_ans(matches);
+        return;
+    }
+    if let Some(ref matches) = matches.subcommand_matches("diff") {
+        parse_diff(matches);
         return;
     }
     println!("No subcommand is used");
@@ -148,4 +153,13 @@ fn mk_parse(format: &str, ranks: u32, input: &str, output: &str) {
         "def" => {}
         _ => unreachable!()
     }
+}
+
+fn parse_diff(matches: &&clap::ArgMatches) {
+    let error_limit: f64 = matches.value_of_t("error").unwrap_or_else(|e| {
+        e.exit()
+    });
+    let file1: &str = matches.value_of("file_1").unwrap();
+    let file2: &str = matches.value_of("file_2").unwrap();
+    diff::diff::diff_wrapper(file1, file2, error_limit)
 }

@@ -37,6 +37,25 @@ subcommands:
               value_name: RANKS
               help: ranks to run the parallel program
               takes_value: true
+  - diff:
+      about: compare particles in two xyz FILES id by id.
+      args:
+        - error:
+              short: e
+              long: error
+              takes_value: true
+              default_value: "1e-4"
+        - file_1:
+              index: 1
+              help: first file path for `diff`
+              takes_value: true
+              required: true
+        - file_2:
+              index: 2
+              help: second file path for `diff`
+              takes_value: true
+              required: true
+
   - ans:
       about: defect analysis.
       args:
