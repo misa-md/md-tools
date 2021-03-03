@@ -161,5 +161,20 @@ fn parse_diff(matches: &&clap::ArgMatches) {
     });
     let file1: &str = matches.value_of("file_1").unwrap();
     let file2: &str = matches.value_of("file_2").unwrap();
-    diff::diff::diff_wrapper(file1, file2, error_limit)
+
+    let mut periodic_checking = false;
+    if matches.is_present("periodic_checking") {
+        periodic_checking = true;
+    }
+
+    let mut box_measured_size = (0.0, 0.0, 0.0);
+    if matches.is_present("box") {
+        let mut bounds_values: Vec<f64> = Vec::new();
+        for b in matches.values_of_t::<f64>("box").unwrap() {
+            bounds_values.push(b);
+        }
+        box_measured_size = (bounds_values[0], bounds_values[1], bounds_values[2]);
+    }
+
+    diff::diff::diff_wrapper(file1, file2, error_limit, periodic_checking, box_measured_size);
 }

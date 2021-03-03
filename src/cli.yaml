@@ -55,6 +55,19 @@ subcommands:
               help: second file path for `diff`
               takes_value: true
               required: true
+        - periodic_checking:
+            help: enable/disable periodic boundary checking while performing `diff`
+            long: periodic-checking
+            short: p
+            requires:
+              - box
+        - box:
+              long: box
+              short: b
+              multiple: true
+              help: the simulation box length, used for periodic boundary checking.
+              max_values: 3
+              min_values: 3
 
   - ans:
       about: defect analysis.
