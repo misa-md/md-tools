@@ -3,7 +3,7 @@ use std::cmp::Ordering;
 use crate::xyz::xyz_reader::{Reader, Snapshot};
 use crate::xyz::particle::Particle;
 
-pub fn diff_wrapper(file1: &str, file2: &str, error_limit: f64) {
+pub fn diff_wrapper(file1: &str, file2: &str, error_limit: f64, periodic_checking: bool, box_measured_size: (f64, f64, f64)) {
     let mut input_1 = File::open(file1).unwrap();
     let mut input_2 = File::open(file2).unwrap();
 
@@ -26,10 +26,10 @@ pub fn diff_wrapper(file1: &str, file2: &str, error_limit: f64) {
         Ok(ref snapshot) => {}
     }
 
-    diff(&mut snapshot_result_1.unwrap(), &mut snapshot_result_2.unwrap(), error_limit);
+    diff(&mut snapshot_result_1.unwrap(), &mut snapshot_result_2.unwrap(), error_limit, periodic_checking, box_measured_size);
 }
 
-fn diff(snapshot1: &mut Snapshot<Particle>, snapshot2: &mut Snapshot<Particle>, error_limit: f64) {
+fn diff(snapshot1: &mut Snapshot<Particle>, snapshot2: &mut Snapshot<Particle>, error_limit: f64, periodic_checking: bool, box_measured_size: (f64, f64, f64)) {
     if snapshot1.size() != snapshot2.size() {
         println!("mismatched atom size in two files");
         return;
@@ -42,11 +42,21 @@ fn diff(snapshot1: &mut Snapshot<Particle>, snapshot2: &mut Snapshot<Particle>, 
 
     let mut same_flag = true;
     let num_atoms = snapshot1.size();
-    for i in 0..num_atoms {
-        if !(snapshot1.atoms[i].is_near_eq(&(snapshot2.atoms[i]), error_limit)) {
-            same_flag = false;
-            println!("mismatch atom position or velocity: \n{}\n{}",
-                     snapshot1.atoms[i].to_string(), snapshot2.atoms[i].to_string());
+    if periodic_checking {
+        for i in 0..num_atoms {
+            if !(snapshot1.atoms[i].is_near_eq_with_pbc(&(snapshot2.atoms[i]), error_limit, box_measured_size)) {
+                same_flag = false;
+                println!("mismatch atom position or velocity: \n{}\n{}",
+                         snapshot1.atoms[i].to_string(), snapshot2.atoms[i].to_string());
+            }
+        }
+    } else {
+        for i in 0..num_atoms {
+            if !(snapshot1.atoms[i].is_near_eq(&(snapshot2.atoms[i]), error_limit)) {
+                same_flag = false;
+                println!("mismatch atom position or velocity: \n{}\n{}",
+                         snapshot1.atoms[i].to_string(), snapshot2.atoms[i].to_string());
+            }
         }
     }
     if same_flag {

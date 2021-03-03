@@ -34,6 +34,15 @@ impl Particle {
             (self.vy - another.vy).abs() < error_limit &&
             (self.vz - another.vz).abs() < error_limit
     }
+    // compare atoms position under periodic boundary checking
+    pub(crate) fn is_near_eq_with_pbc(&self, another: &Particle, error_limit: f64, (box_x, box_y, box_z): (f64, f64, f64)) -> bool {
+        return ((self.x - another.x).abs() < error_limit || ((self.x - another.x).abs() - box_x).abs() < error_limit)
+            && ((self.y - another.y).abs() < error_limit || ((self.y - another.y).abs() - box_y).abs() < error_limit)
+            && ((self.z - another.z).abs() < error_limit || ((self.z - another.z).abs() - box_z).abs() < error_limit)
+            && (self.vx - another.vx).abs() < error_limit
+            && (self.vy - another.vy).abs() < error_limit
+            && (self.vz - another.vz).abs() < error_limit;
+    }
 }
 
 impl FromStr for Particle {
