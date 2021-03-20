@@ -82,11 +82,17 @@ fn parse_convert(matches: &&clap::ArgMatches) {
 }
 
 fn parse_ans(matches: &&clap::ArgMatches) {
-    let output = matches.value_of("output").unwrap();
     let mut input_files = Vec::new();
+    let mut output_files = Vec::new();
     if let Some(arg_input) = matches.values_of("input") {
         for in_file in arg_input {
             input_files.push(in_file);
+        }
+    }
+
+    if let Some(arg_output) = matches.values_of("output") {
+        for out_file in arg_output {
+            output_files.push(out_file);
         }
     }
 
@@ -123,20 +129,33 @@ fn parse_ans(matches: &&clap::ArgMatches) {
     if input_files.len() == 0 {
         println!("no matching input files");
         return;
-    } else if input_files.len() == 1 {
-        ans::analysis::analysis_wrapper(input_files[0], output, input_from_minio,
-                                        &mut box_config, verbose_log)
+    }
+    if output_files.len() == input_files.len() {
+        for i in 0..output_files.len() {
+            println!("analysing file {}", input_files[i]);
+            ans::analysis::analysis_wrapper(input_files[i], output_files[i], input_from_minio,
+                                            &mut box_config, verbose_log);
+            println!("file {} analysis, saved at {}", input_files[i], output_files[i]);
+        }
     } else {
-        for input_file in input_files {
-            let input_path = Path::new(input_file);
-            println!("analysing file {}", input_file);
-            let output_suffix = input_path.file_name().unwrap().to_str().unwrap();
-            let output_file_path = format!("{}.{}", output, output_suffix);
-            ans::analysis::analysis_wrapper(input_file, output_file_path.as_str(),
-                                            input_from_minio, &mut box_config, verbose_log);
-            println!("file {} analysis, saved at {}", input_file, output_file_path.as_str());
+        // only specified one output file, then add prefix to each out file.
+        if output_files.len() == 1 {
+            let output = output_files[0];
+            for input_file in input_files {
+                let input_path = Path::new(input_file);
+                println!("analysing file {}", input_file);
+                let output_prefix = input_path.file_name().unwrap().to_str().unwrap();
+                let output_file_path = format!("{}-{}", output_prefix, output);
+                ans::analysis::analysis_wrapper(input_file, output_file_path.as_str(),
+                                                input_from_minio, &mut box_config, verbose_log);
+                println!("file {} analysis, saved at {}", input_file, output_file_path.as_str());
+            }
+        } else {
+            println!("files number for input files and output files is no matching ");
+            return;
         }
     }
+
     // todo method
     // todo, now only xyz format input is supported
 }
