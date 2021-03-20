@@ -112,8 +112,9 @@ subcommands:
           - output:
                 short: o
                 long: output
-                help: Sets the filename of output file
-                default_value: def
+                help: Sets the filename of output files
+                multiple: true
+                default_value: def.csv
                 takes_value: true
           - method:
                 short: m
