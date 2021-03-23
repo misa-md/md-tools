@@ -1,11 +1,10 @@
 use std::fs::File;
-use std::cmp::Ordering;
 use crate::xyz::xyz_reader::{Reader, Snapshot};
 use crate::xyz::particle::Particle;
 
 pub fn diff_wrapper(file1: &str, file2: &str, error_limit: f64, periodic_checking: bool, box_measured_size: (f64, f64, f64)) {
-    let mut input_1 = File::open(file1).unwrap();
-    let mut input_2 = File::open(file2).unwrap();
+    let input_1 = File::open(file1).unwrap();
+    let input_2 = File::open(file2).unwrap();
 
     let mut reader1 = Reader::new(input_1);
     let mut reader2 = Reader::new(input_2);
@@ -15,7 +14,7 @@ pub fn diff_wrapper(file1: &str, file2: &str, error_limit: f64, periodic_checkin
         Err(e) => {
             panic!("read input xyz file error: {:?}", e);
         }
-        Ok(ref snapshot) => {}
+        Ok(ref _snapshot) => {}
     }
 
     let snapshot_result_2 = reader2.read_snapshot();
@@ -23,7 +22,7 @@ pub fn diff_wrapper(file1: &str, file2: &str, error_limit: f64, periodic_checkin
         Err(e) => {
             panic!("read input xyz file error: {:?}", e);
         }
-        Ok(ref snapshot) => {}
+        Ok(ref _snapshot) => {}
     }
 
     diff(&mut snapshot_result_1.unwrap(), &mut snapshot_result_2.unwrap(), error_limit, periodic_checking, box_measured_size);

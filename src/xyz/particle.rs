@@ -1,16 +1,10 @@
 /**
- * this file is copied from xyzio package,
- * but add `rayon` parallel support for reading file
+ * Add support for parsing id, position and velocity in line string of xyz file.
  */
 
-use std::{io, fmt};
-use std::io::prelude::BufRead;
 use std::iter::Iterator;
 
 use std::str::FromStr;
-use std::num::ParseFloatError;
-use std::fmt::Display;
-use rayon::prelude::*;
 use xyzio::Error;
 
 type Real = f64;

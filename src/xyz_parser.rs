@@ -17,7 +17,7 @@ impl ParseProgress for XYZParser {
     fn on_atom_read(&mut self, atom: &OneAtomType) -> i32 {
         let fmt_string = format!("{} \t{:.6} \t{:.6} \t{:.6}\n",
                                  atom.get_name_by_ele_name(),
-                                 atom.Location[0], atom.Location[1], atom.Location[2]);
+                                 atom.location[0], atom.location[1], atom.location[2]);
         self.output.write(fmt_string.as_bytes()).unwrap();
         self.atom_count += 1;
         return 1 as i32;
