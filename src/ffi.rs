@@ -6,19 +6,19 @@ use std::{fmt, error};
 #[repr(C)]
 pub struct OneAtomType {
     // u64
-    pub  AtomId: libc::c_ulong,
+    pub atom_id: libc::c_ulong,
     // fixme matching size_t in C side.
-    pub  Step: libc::c_ulong,
-    pub  AtomType: libc::c_int,
-    pub  InterType: libc::c_short,
+    pub step: libc::c_ulong,
+    pub atom_type: libc::c_int,
+    pub inter_type: libc::c_short,
     // double 64
-    pub  Location: [libc::c_double; 3],
-    pub  Velocity: [libc::c_double; 3],
+    pub location: [libc::c_double; 3],
+    pub velocity: [libc::c_double; 3],
 }
 
 impl OneAtomType {
     pub fn get_name_by_ele_name(&self) -> &'static str {
-        match self.AtomType {
+        match self.atom_type {
             -1 => "V",
             0 => "Fe",
             1 => "Cu",

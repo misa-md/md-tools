@@ -21,9 +21,9 @@ writer.write_all(b"test\n");
 impl ParseProgress for TextParser {
     fn on_atom_read(&mut self, atom: &OneAtomType) -> i32 {
         let fmt_string = format!("{} \t{} \t{} \t{} \t{:.6} \t{:.6} \t{:.6}  \t{:.6} \t{:.6} \t{:.6}\n",
-                                 atom.AtomId, atom.Step, atom.get_name_by_ele_name(), atom.InterType,
-                                 atom.Location[0], atom.Location[1], atom.Location[2],
-                                 atom.Velocity[0], atom.Velocity[1], atom.Velocity[2]);
+                                 atom.atom_id, atom.step, atom.get_name_by_ele_name(), atom.inter_type,
+                                 atom.location[0], atom.location[1], atom.location[2],
+                                 atom.velocity[0], atom.velocity[1], atom.velocity[2]);
         self.output.write(fmt_string.as_bytes()).unwrap();
         return 1 as i32;
     }

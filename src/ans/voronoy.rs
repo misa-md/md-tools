@@ -2,7 +2,6 @@ use std::{f32};
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::Path;
-use std::collections::BTreeMap;
 use rayon::prelude::*;
 use xyzio::Atom;
 
@@ -107,7 +106,7 @@ fn do_analysis(writer: &mut BufWriter<File>, (box_x_size, box_y_size, _): (usize
     // each item in this tuple: lattice index, atom array index
     // and draft(means this lattice is not written to file before).
     let mut pre_global_atom_index_data: (Inx, usize, bool) = (-1, 0, false);
-    let mut indexes_i: usize = 0;
+
     // iterate all lattice point to search vacancies and interstitials
     for (lat_index, atom_index) in global_atom_indexes {
         if lat_index == pre_global_atom_index_data.0 {
@@ -135,7 +134,6 @@ fn do_analysis(writer: &mut BufWriter<File>, (box_x_size, box_y_size, _): (usize
             }
             pre_global_atom_index_data = (lat_index, atom_index, true);
         }
-        indexes_i += 1;
     }
 }
 
