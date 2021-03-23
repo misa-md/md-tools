@@ -2,7 +2,6 @@ use std::{f32};
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::path::Path;
-use std::collections::BTreeMap;
 use rayon::prelude::*;
 use xyzio::Atom;
 
