@@ -1,5 +1,4 @@
 use std::fs::File;
-use std::cmp::Ordering;
 use crate::xyz::xyz_reader::{Reader, Snapshot};
 use crate::xyz::particle::Particle;
 
