@@ -1,5 +1,9 @@
 # md-tools
 
+[![Rust](https://github.com/misa-md/md-tools/actions/workflows/rust.yml/badge.svg)](https://github.com/misa-md/md-tools/actions/workflows/rust.yml) 
+![GitHub all releases](https://img.shields.io/github/downloads/misa-md/md-tools/total?color=ff69b4&style=flat) 
+![All commits and tags are GPG signed](https://img.shields.io/badge/all_commits/tags-GPG_signed-brightgreen)
+
 tools for MISA-MD and Crystal MD
 
 ## Build
