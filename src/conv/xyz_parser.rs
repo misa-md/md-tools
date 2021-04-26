@@ -1,7 +1,7 @@
 use std::io::{Write, SeekFrom};
 use std::io::Seek;
 use std::fs::{OpenOptions, File};
-use crate::ffi::{ParseProgress, OneAtomType};
+use crate::conv::ffi::{OneAtomType, ParseProgress};
 
 pub struct XYZParser {
     output: File,

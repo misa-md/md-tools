@@ -3,13 +3,12 @@ extern crate clap;
 
 use std::path::Path;
 
-mod ffi;
-mod xyz_parser;
-mod text_parser;
+use crate::conv::{ffi, xyz_parser, text_parser};
 
 mod ans;
 mod diff;
 mod xyz;
+mod conv;
 
 fn main() {
     use clap::App;
