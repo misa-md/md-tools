@@ -3,21 +3,33 @@
 //
 
 #include <stdio.h>
+#include <stdlib.h>
 #include "capi.h"
+#include "converter.h"
 
-int ParseBinaryAtoms(const char *filename, unsigned int ranks, void *callback_obj, on_atom_read atom_read) {
+
+void *make_parse(const char *filename, unsigned int ranks) {
     AtomParser parser = MakeParser(ranks, filename);
     if (parser.has_error) {
         printf("Error, initialize parser failed with file `%s` and ranks %d.\n", filename, ranks);
-        return 1; // error while open file
+        return NULL; // error while opening file
     }
+    AtomParser *p_parser = malloc(sizeof(AtomParser));
+    *p_parser = parser;
+    return p_parser;
+}
 
-    TypeAtom atom;
-    // todo check error.
-    while (next(&parser, &atom)) {
-        atom_read(callback_obj, atom);
+int read_next_atom(void *_obj, TypeAtom *atom) {
+    AtomParser *parser = (AtomParser *) _obj;
+    if (next(parser, atom)) {
+        return 0;
     }
+    return 1;
+}
 
-    OnParsingDone(&parser);
-    return 0;
+void close_parser(void *_obj) {
+    AtomParser *parser = (AtomParser *) _obj;
+    // release buffer memory and close file.
+    OnParsingDone(parser);
+    free(parser);
 }

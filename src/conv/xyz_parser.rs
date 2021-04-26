@@ -1,23 +1,24 @@
 use std::io::{Write, SeekFrom};
 use std::io::Seek;
 use std::fs::{OpenOptions, File};
-use crate::conv::ffi::{OneAtomType, ParseProgress};
+use crate::conv::ffi::{ParseProgress};
+use crate::conv::binary_types;
 
 pub struct XYZParser {
     output: File,
     atom_count: u64,
 }
 
-extern fn xyz_callback(target: *mut libc::c_void, atom: OneAtomType) -> libc::c_int { // this func is called by C.
+extern fn xyz_callback(target: *mut libc::c_void, atom: binary_types::TypeAtom) -> libc::c_int { // this func is called by C.
     let xyz_parser: &mut XYZParser = unsafe { &mut *(target as *mut XYZParser) };
     xyz_parser.on_atom_read(&atom) as libc::c_int
 }
 
 impl ParseProgress for XYZParser {
-    fn on_atom_read(&mut self, atom: &OneAtomType) -> i32 {
+    fn on_atom_read(&mut self, atom: &binary_types::TypeAtom) -> i32 {
         let fmt_string = format!("{} \t{:.6} \t{:.6} \t{:.6}\n",
                                  atom.get_name_by_ele_name(),
-                                 atom.location[0], atom.location[1], atom.location[2]);
+                                 atom.atom_location[0], atom.atom_location[1], atom.atom_location[2]);
         self.output.write(fmt_string.as_bytes()).unwrap();
         self.atom_count += 1;
         return 1 as i32;
@@ -27,7 +28,7 @@ impl ParseProgress for XYZParser {
         self.output.seek(SeekFrom::Start(128)).unwrap();
     }
 
-    fn load_callback(&mut self) -> extern fn(*mut libc::c_void, OneAtomType) -> libc::c_int {
+    fn load_callback(&mut self) -> extern fn(*mut libc::c_void, binary_types::TypeAtom) -> libc::c_int {
         return xyz_callback;
     }
 
