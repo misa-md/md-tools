@@ -1,12 +1,13 @@
 use std::fs::{OpenOptions, File};
 use std::io::Write;
-use crate::conv::ffi::{ParseProgress, OneAtomType};
+use crate::conv::ffi::{ParseProgress};
+use crate::conv::binary_types::TypeAtom;
 
 pub struct TextParser {
     output: File,
 }
 
-extern fn text_callback(target: *mut libc::c_void, atom: OneAtomType) -> libc::c_int { // this func is called by C.
+extern fn text_callback(target: *mut libc::c_void, atom: TypeAtom) -> libc::c_int { // this func is called by C.
     let text_parser: &mut TextParser = unsafe { &mut *(target as *mut TextParser) };
     text_parser.on_atom_read(&atom) as libc::c_int
 }
@@ -18,11 +19,11 @@ let mut writer = BufWriter::new(&file);
 writer.write_all(b"test\n");
 */
 impl ParseProgress for TextParser {
-    fn on_atom_read(&mut self, atom: &OneAtomType) -> i32 {
-        let fmt_string = format!("{} \t{} \t{} \t{} \t{:.6} \t{:.6} \t{:.6}  \t{:.6} \t{:.6} \t{:.6}\n",
-                                 atom.atom_id, atom.step, atom.get_name_by_ele_name(), atom.inter_type,
-                                 atom.location[0], atom.location[1], atom.location[2],
-                                 atom.velocity[0], atom.velocity[1], atom.velocity[2]);
+    fn on_atom_read(&mut self, atom: &TypeAtom) -> i32 {
+        let fmt_string = format!("{} \t {} \t{} \t{:.6} \t{:.6} \t{:.6}  \t{:.6} \t{:.6} \t{:.6}\n",
+                                 atom.id, atom.get_name_by_ele_name(), atom.inter_type,
+                                 atom.atom_location[0], atom.atom_location[1], atom.atom_location[2],
+                                 atom.atom_velocity[0], atom.atom_velocity[1], atom.atom_velocity[2]);
         self.output.write(fmt_string.as_bytes()).unwrap();
         return 1 as i32;
     }
@@ -33,7 +34,7 @@ impl ParseProgress for TextParser {
         self.output.write(b"id \tstep \ttype \tinter_type \tlocate.x \tlocate.y \tlocate.z \tv.x \tv.y \tv.z\n").unwrap();
     }
 
-    fn load_callback(&mut self) -> extern fn(*mut libc::c_void, OneAtomType) -> libc::c_int {
+    fn load_callback(&mut self) -> extern fn(*mut libc::c_void, TypeAtom) -> libc::c_int {
         return text_callback;
     }
     //todo return Result<>

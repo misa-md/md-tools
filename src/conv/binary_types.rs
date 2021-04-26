@@ -2,31 +2,45 @@
  * basic atom type saved in binary atom file.
  * each atom in binary atom file will include those information below.
  */
-#[repr(C, packed)]
+#[repr(C)]
 #[derive(Debug, Copy, Clone)]
-struct TypeAtom {
+pub struct TypeAtom {
     // atom id
-    id: u64,
+    pub id: u64,
     // atom type
-    tp: i32,
-    inter_type: i16,
+    pub tp: i32,
+    pub inter_type: i16,
     // atom location
-    atom_location: [f64; 3],
+    pub atom_location: [f64; 3],
     // atom velocity
-    atom_velocity: [f64; 3],
+    pub atom_velocity: [f64; 3],
     // atom force
-    atom_force: [f64; 3],
+    pub atom_force: [f64; 3],
 }
 
-trait BinaryParser {
+impl TypeAtom {
+    pub fn get_name_by_ele_name(&self) -> &'static str {
+        match self.tp {
+            -1 => "V",
+            0 => "Fe",
+            1 => "Cu",
+            2 => "Ni",
+            _ => "Unknown",
+        }
+    }
+}
+
+pub trait BinaryParser {
     // get global header
     fn global_header(&self);
     // move next atom
-    fn next(&self) -> bool;
+    fn next(&mut self) -> bool;
     // decode atom struct in current position
     fn decode(&self) -> TypeAtom;
     // move to next frame
-    fn move_to_next_frame(&self);
+    fn move_to_next_frame(&self) -> bool;
     // get frame header
     fn frame_header(&self);
+    // close parser
+    fn close(&self);
 }
