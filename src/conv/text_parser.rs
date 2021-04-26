@@ -1,7 +1,6 @@
-use crate::ffi::ParseProgress;
-use crate::ffi::OneAtomType;
 use std::fs::{OpenOptions, File};
 use std::io::Write;
+use crate::conv::ffi::{ParseProgress, OneAtomType};
 
 pub struct TextParser {
     output: File,
