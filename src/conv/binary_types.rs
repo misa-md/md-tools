@@ -36,9 +36,9 @@ pub trait BinaryParser {
     // move next atom
     fn next(&mut self) -> bool;
     // decode atom struct in current position
-    fn decode(&self) -> TypeAtom;
+    fn decode(&mut self) -> TypeAtom;
     // move to next frame
-    fn move_to_next_frame(&self) -> bool;
+    fn move_to_next_frame(&mut self) -> bool;
     // get frame header
     fn frame_header(&self);
     // close parser

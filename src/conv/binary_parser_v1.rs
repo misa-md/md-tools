@@ -48,7 +48,7 @@ impl binary_types::BinaryParser for BinaryParserV1 {
         return ok == 0;
     }
 
-    fn decode(&self) -> binary_types::TypeAtom {
+    fn decode(&mut self) -> binary_types::TypeAtom {
         let atom = binary_types::TypeAtom {
             id: self.atom.id,
             tp: self.atom.type_,
@@ -60,7 +60,7 @@ impl binary_types::BinaryParser for BinaryParserV1 {
         return atom;
     }
 
-    fn move_to_next_frame(&self) -> bool {
+    fn move_to_next_frame(&mut self) -> bool {
         return false;
     }
 
