@@ -2,7 +2,7 @@ extern crate libc;
 
 use std::{fmt, error};
 use crate::conv::binary_parser_v1::make_parser;
-use crate::conv::binary_types;
+use crate::conv::{binary_types, binary_parser_v2};
 use crate::conv::binary_types::{BinaryParser};
 
 
@@ -39,17 +39,20 @@ pub trait ParseProgress {
 //on_read: fn (atom: OneAtomType) -> u32
 pub fn parse(filename: &str, output: &str, ranks: u32, mut progress: impl ParseProgress)
              -> std::result::Result<i32, ParseError> {
-    let mut bin_parser = match make_parser(filename, output, ranks) {
+    let mut bin_parser_v2 = match binary_parser_v2::make_parser(filename, output, ranks) {
         Ok(p) => p,
         Err(e) => return Err(e)
     };
-    progress.before_parsing(output);
-
-    while bin_parser.next() {
-        let atom = bin_parser.decode();
-        progress.on_atom_read(&atom);
+    bin_parser_v2.global_header();
+    let gh = bin_parser_v2.global_header;
+    for frame in 0..gh.frames {
+        bin_parser_v2.move_to_next_frame();
+        let mut i = 0;
+        while bin_parser_v2.next() {
+            i = i + 1;
+            let atom = bin_parser_v2.decode();
+            println!("{}, {:?}", i, atom);
+        }
     }
-    bin_parser.close();
-    progress.finish_parsing();
     return Ok(1);
 }
