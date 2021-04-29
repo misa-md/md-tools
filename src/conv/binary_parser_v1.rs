@@ -9,7 +9,7 @@ pub struct BinaryParserV1 {
 }
 
 // initialize parser
-pub fn make_parser(filename: &str, output: &str, ranks: u32)
+pub fn make_parser(filename: &str, ranks: u32)
                    -> std::result::Result<BinaryParserV1, ParseError> {
     let filename_cstring = CString::new(filename).unwrap();
     let bytes = filename_cstring.as_bytes_with_nul();
