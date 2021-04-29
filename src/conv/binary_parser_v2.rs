@@ -4,7 +4,7 @@ use std::io::{Read, Seek};
 use byte_struct::ByteStruct;
 
 use crate::conv::binary_types;
-use crate::conv::ffi::{ParseError};
+use crate::conv::binary_parser::{ParseError};
 use crate::conv::v2_atom_types;
 use std::error::Error;
 
@@ -132,9 +132,10 @@ impl BinaryParserV2 {
 }
 
 impl binary_types::BinaryParser for BinaryParserV2 {
-    fn global_header(&self) {
+    fn global_header(&self) -> u32 {
         println!("file metadata:");
-        println!("{:#?}", self.global_header)
+        println!("{:#?}", self.global_header);
+        return self.global_header.frames;
     }
 
     // read next atom in one frame

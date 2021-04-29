@@ -29,6 +29,14 @@ subcommands:
               required: true
               value_name:  FORMAT
               help: output format(xyz, text, db, def)
+          - standard:
+              short: s
+              long: standard
+              required: true
+              value_name: STANDARD
+              help: binary file standard
+              default_value: current
+              possible_values: [ current, next ]
               takes_value: true
           - ranks:
               short: r

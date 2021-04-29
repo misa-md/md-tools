@@ -1,6 +1,6 @@
 use std::fs::{OpenOptions, File};
 use std::io::Write;
-use crate::conv::ffi::{ParseProgress};
+use crate::conv::binary_parser::{ParseProgress};
 use crate::conv::binary_types::TypeAtom;
 
 pub struct TextParser {

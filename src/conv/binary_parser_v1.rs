@@ -1,7 +1,7 @@
 use std::ffi::CString;
 
 use crate::conv::{binary_types, lib_conv_capi};
-use crate::conv::ffi::{ParseProgress, ParseError};
+use crate::conv::binary_parser::ParseError;
 
 pub struct BinaryParserV1 {
     c_parser: *mut ::std::os::raw::c_void,
@@ -38,7 +38,9 @@ pub fn make_parser(filename: &str, output: &str, ranks: u32)
 
 
 impl binary_types::BinaryParser for BinaryParserV1 {
-    fn global_header(&self) {
+    fn global_header(&self) -> u32 {
+        // only support 1 frame
+        return 1;
     }
 
     fn next(&mut self) -> bool {
