@@ -6,21 +6,17 @@ use byte_struct::ByteStruct;
 use crate::conv::binary_types;
 use crate::conv::binary_parser::{ParseError};
 use crate::conv::v2_atom_types;
-use std::error::Error;
 
 pub struct BinaryParserV2 {
     next_frame: u32,
     // current processing rank
     cur_rank: u32,
-    // current processing block
-    cur_block: u32,
     // current index in block
     cur_index_in_block: u32,
     // rank data offset, and block index(how many atoms walked in this block)
     rank_start_offset: Vec<(u64, u32)>,
     // temp data of atom
     atom: binary_types::TypeAtom,
-    limit: u32,
     pub(crate) global_header: v2_atom_types::GlobalMetaData,
     // current frame in processing
     file: File,
@@ -59,11 +55,9 @@ pub fn make_parser(filename: &str)
         let binary_parser = BinaryParserV2 {
             next_frame: 0,
             cur_rank: 0,
-            cur_block: 0,
             cur_index_in_block: 0,
             rank_start_offset: rank_offset_vec,
             file: input_file,
-            limit: 0,
             global_header,
             atom: binary_types::TypeAtom {
                 id: 0,
@@ -147,7 +141,7 @@ impl binary_types::BinaryParser for BinaryParserV2 {
         let mut buffer = vec![0; atom_data_size];
 
         // read one atom
-        let n = match self.file.read(&mut buffer[..]) {
+        let _n = match self.file.read(&mut buffer[..]) {
             Ok(p) => p,
             Err(e) => panic!(e),
         };

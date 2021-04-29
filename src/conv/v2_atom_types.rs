@@ -8,10 +8,10 @@ pub type TypeAtomId = u64;
 // C side type: ::std::os::raw::c_int;
 pub type TypeAtomType = i32;
 // C side type: ::std::os::raw::c_short;
-pub type TypeInterType = i16;
-pub type TypeAtomLocation = f64;
-pub type TypeAtomVelocity = f64;
-pub type TypeAtomForce = f64;
+// pub type TypeInterType = i16;
+// pub type TypeAtomLocation = f64;
+// pub type TypeAtomVelocity = f64;
+// pub type TypeAtomForce = f64;
 // C side type: ::std::os::raw::c_uint;
 pub type TypeDumpMask = u32;
 // c side type: ::std::os::raw::c_uint
