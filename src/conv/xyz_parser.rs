@@ -1,7 +1,7 @@
 use std::io::{Write, SeekFrom};
 use std::io::Seek;
 use std::fs::{OpenOptions, File};
-use crate::conv::ffi::{ParseProgress};
+use crate::conv::binary_parser::{ParseProgress};
 use crate::conv::binary_types;
 
 pub struct XYZParser {
