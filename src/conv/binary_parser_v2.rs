@@ -27,7 +27,7 @@ pub struct BinaryParserV2 {
 }
 
 // initialize parser
-pub fn make_parser(filename: &str, output: &str, ranks: u32)
+pub fn make_parser(filename: &str)
                    -> std::result::Result<BinaryParserV2, ParseError> {
     let mut input_file = File::open(filename).unwrap();
 

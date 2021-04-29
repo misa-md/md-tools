@@ -1,15 +1,10 @@
 use std::fs::{OpenOptions, File};
 use std::io::Write;
-use crate::conv::binary_parser::{ParseProgress};
 use crate::conv::binary_types::TypeAtom;
+use crate::conv::out_writer;
 
 pub struct TextParser {
     output: File,
-}
-
-extern fn text_callback(target: *mut libc::c_void, atom: TypeAtom) -> libc::c_int { // this func is called by C.
-    let text_parser: &mut TextParser = unsafe { &mut *(target as *mut TextParser) };
-    text_parser.on_atom_read(&atom) as libc::c_int
 }
 
 /**
@@ -18,7 +13,7 @@ let mut writer = BufWriter::new(&file);
 // Then we write to the file. write_all() calls flush() after the write as well.
 writer.write_all(b"test\n");
 */
-impl ParseProgress for TextParser {
+impl out_writer::WriteProgress for TextParser {
     fn on_atom_read(&mut self, atom: &TypeAtom) -> i32 {
         let fmt_string = format!("{} \t {} \t{} \t{:.6} \t{:.6} \t{:.6}  \t{:.6} \t{:.6} \t{:.6}\n",
                                  atom.id, atom.get_name_by_ele_name(), atom.inter_type,
@@ -28,17 +23,18 @@ impl ParseProgress for TextParser {
         return 1 as i32;
     }
 
+    fn before_frame(&mut self, frame: u32, output: &str) {}
+
+    fn after_frame(&mut self) {}
+
     //todo return Result<>
-    fn before_parsing(&mut self, _output: &str) {
+    fn on_start(&mut self, _output: &str) {
         // write header.
         self.output.write(b"id \tstep \ttype \tinter_type \tlocate.x \tlocate.y \tlocate.z \tv.x \tv.y \tv.z\n").unwrap();
     }
 
-    fn load_callback(&mut self) -> extern fn(*mut libc::c_void, TypeAtom) -> libc::c_int {
-        return text_callback;
-    }
     //todo return Result<>
-    fn finish_parsing(&mut self) {}
+    fn done(&mut self) {}
 }
 
 // filename: output file.
