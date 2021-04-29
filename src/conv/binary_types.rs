@@ -31,7 +31,7 @@ impl TypeAtom {
 }
 
 pub trait BinaryParser {
-    // get global header
+    // return get total frames in global header
     fn global_header(&self) -> u32;
     // move next atom
     fn next(&mut self) -> bool;

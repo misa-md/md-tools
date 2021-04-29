@@ -66,8 +66,7 @@ impl binary_types::BinaryParser for BinaryParserV1 {
         return false;
     }
 
-    fn frame_header(&self) {
-    }
+    fn frame_header(&self) {}
 
     fn close(&self) {
         unsafe {
