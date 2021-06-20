@@ -3,13 +3,12 @@ extern crate clap;
 
 use std::path::Path;
 
-mod ffi;
-mod xyz_parser;
-mod text_parser;
+use crate::conv::{binary_parser, xyz_parser, text_parser};
 
 mod ans;
 mod diff;
 mod xyz;
+mod conv;
 
 fn main() {
     use clap::App;
@@ -49,6 +48,8 @@ fn parse_convert(matches: &&clap::ArgMatches) {
         return;
     }
 
+    let bin_standard = matches.value_of("standard").unwrap();
+
     let dry_run = matches.is_present("dry");
     let output = matches.value_of("output").unwrap();
     let mut input_files = Vec::new();
@@ -63,7 +64,7 @@ fn parse_convert(matches: &&clap::ArgMatches) {
         return;
     } else if input_files.len() == 1 {
         if !dry_run {
-            mk_parse(format, ranks, input_files[0], output);
+            mk_parse(format, bin_standard, ranks, input_files[0], output);
         }
         println!("file {} converted, saved at {}", input_files[0], output);
     } else {
@@ -74,7 +75,7 @@ fn parse_convert(matches: &&clap::ArgMatches) {
             let output_suffix = input_path.file_name().unwrap().to_str().unwrap();
             let output_file_path = format!("{}.{}", output, output_suffix);
             if !dry_run {
-                mk_parse(format, ranks, input_file, output_file_path.as_str());
+                mk_parse(format, bin_standard, ranks, input_file, output_file_path.as_str());
             }
             println!("file {} converted, saved at {}", input_file, output_file_path.as_str());
         }
@@ -160,13 +161,13 @@ fn parse_ans(matches: &&clap::ArgMatches) {
     // todo, now only xyz format input is supported
 }
 
-fn mk_parse(format: &str, ranks: u32, input: &str, output: &str) {
+fn mk_parse(format: &str, bin_standard: &str, ranks: u32, input: &str, output: &str) {
     match format {
         "xyz" => {
-            ffi::parse(input, output, ranks, xyz_parser::new_parser(output)).unwrap();
+            binary_parser::parse_wrapper(bin_standard, input, output, ranks, xyz_parser::new_parser(output)).unwrap();
         }
         "text" => {
-            ffi::parse(input, output, ranks, text_parser::new_parser(output)).unwrap();
+            binary_parser::parse_wrapper(bin_standard, input, output, ranks, text_parser::new_parser(output)).unwrap();
         }
         "db" => {}
         "def" => {}

@@ -6,7 +6,7 @@
 
 #define  C_API_ATOM_TYPE_H
 
-#include <stdlib.h>
+#include <stddef.h>
 
 /**
  * basic atom type saved in binary atom file.
