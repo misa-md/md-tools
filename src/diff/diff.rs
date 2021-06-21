@@ -43,7 +43,7 @@ fn diff(snapshot1: &mut Snapshot<Particle>, snapshot2: &mut Snapshot<Particle>, 
     let num_atoms = snapshot1.size();
     if periodic_checking {
         for i in 0..num_atoms {
-            if !(snapshot1.atoms[i].is_near_eq_with_pbc(&(snapshot2.atoms[i]), error_limit, box_measured_size)) {
+            if !(snapshot1.atoms[i].is_status_near_eq_with_pbc(&(snapshot2.atoms[i]), error_limit, box_measured_size)) {
                 same_flag = false;
                 println!("mismatch atom position or velocity: \n{}\n{}",
                          snapshot1.atoms[i].to_string(), snapshot2.atoms[i].to_string());
@@ -51,7 +51,7 @@ fn diff(snapshot1: &mut Snapshot<Particle>, snapshot2: &mut Snapshot<Particle>, 
         }
     } else {
         for i in 0..num_atoms {
-            if !(snapshot1.atoms[i].is_near_eq(&(snapshot2.atoms[i]), error_limit)) {
+            if !(snapshot1.atoms[i].is_status_near_eq(&(snapshot2.atoms[i]), error_limit)) {
                 same_flag = false;
                 println!("mismatch atom position or velocity: \n{}\n{}",
                          snapshot1.atoms[i].to_string(), snapshot2.atoms[i].to_string());
