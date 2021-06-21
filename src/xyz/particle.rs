@@ -109,9 +109,9 @@ mod tests {
         let data: &[u8] = b"\
             3
             commnet
-            1 1.0 2.0 3.0 1.0 2.0 3.0
-            2 4.0 3.0 6.0 4.0 3.0 6.0
-            3 5.0 1.5 4.0 5.0 1.5 4.0";
+            1 Fe 1.0 2.0 3.0 1.0 2.0 3.0
+            2 Fe 4.0 3.0 6.0 4.0 3.0 6.0
+            3 Fe 5.0 1.5 4.0 5.0 1.5 4.0";
         let mut reader = Reader::new(data);
         let success = reader.read_snapshot::<Particle>();
         assert!(success.is_ok());
