@@ -12,6 +12,13 @@ fn main() {
         .cpp(false)
         .compile("libconv.a");
 
+    if cfg!(feature = "minio-analysis") {
+        gen_minio_rw_api();
+    }
+    gen_conversion_api();
+}
+
+fn gen_minio_rw_api() {
     println!("cargo:rerun-if-changed=src/ans/minio/minio-rw.go");
 
     // run `go build --buildmode=c-archive -o /path/to/save/libminio_rw.a`
@@ -41,8 +48,6 @@ fn main() {
     let out_path = PathBuf::from(env::var("OUT_DIR").unwrap());
     bindings.write_to_file(out_path.join("minio_rw_bindings.rs"))
         .expect("Couldn't write bindings!");
-
-    gen_conversion_api();
 }
 
 fn gen_conversion_api() {
