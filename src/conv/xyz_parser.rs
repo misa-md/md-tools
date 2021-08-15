@@ -4,7 +4,7 @@ use std::fs::{OpenOptions, File};
 use crate::conv::{binary_types, out_writer};
 
 pub struct XYZParser {
-    output: File,
+    output: std::io::BufWriter<File>,
     atom_count: u64,
 }
 
@@ -61,7 +61,7 @@ pub fn new_parser(filename: &str) -> XYZParser {
 
     match file {
         Ok(stream) => {
-            return XYZParser { output: stream, atom_count: 0 };
+            return XYZParser { output: std::io::BufWriter::with_capacity(1024 * 1024, stream), atom_count: 0 };
         }
         Err(err) => {
             panic!("{:?}", err);

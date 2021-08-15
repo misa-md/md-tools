@@ -4,7 +4,7 @@ use crate::conv::binary_types::TypeAtom;
 use crate::conv::out_writer;
 
 pub struct TextParser {
-    output: File,
+    output: std::io::BufWriter<File>,
 }
 
 /**
@@ -49,7 +49,7 @@ pub fn new_parser(filename: &str) -> TextParser {
 
     match file {
         Ok(stream) => {
-            return TextParser { output: stream };
+            return TextParser { output: std::io::BufWriter::with_capacity(1024 * 1024, stream) };
         }
         Err(err) => {
             panic!("{:?}", err);
