@@ -28,7 +28,12 @@ subcommands:
               long: format
               required: true
               value_name:  FORMAT
-              help: output format(xyz, text, db, def)
+              help: output format(xyz, text, dump)
+              possible_values:
+                - xyz
+                - text
+                - dump
+              takes_value: true
           - standard:
               short: s
               long: standard
