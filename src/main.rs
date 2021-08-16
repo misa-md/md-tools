@@ -3,7 +3,7 @@ extern crate clap;
 
 use std::path::Path;
 
-use crate::conv::{binary_parser, xyz_parser, text_parser};
+use crate::conv::{binary_parser, xyz_parser, text_parser, dump_parser};
 
 mod ans;
 mod diff;
@@ -43,7 +43,7 @@ fn parse_convert(matches: &&clap::ArgMatches) {
         return;
     }
     let format = matches.value_of("format").unwrap();
-    if !(format == "xyz" || format == "text" || format == "db" || format == "def") {
+    if !(format == "xyz" || format == "text" || format == "dump") {
         println!("unsupported format {}.", format);
         return;
     }
@@ -62,23 +62,28 @@ fn parse_convert(matches: &&clap::ArgMatches) {
     if input_files.len() == 0 {
         println!("no matching input files");
         return;
-    } else if input_files.len() == 1 {
-        if !dry_run {
-            mk_parse(format, bin_standard, ranks, input_files[0], output);
-        }
-        println!("file {} converted, saved at {}", input_files[0], output);
+    }
+    let multiple_outputs = if input_files.len() != 1 && format != "dump" {
+        true
     } else {
-        for input_file in input_files {
-            let input_path = Path::new(input_file);
+        false
+    };
 
-            println!("converting file {}", input_file);
-            let output_suffix = input_path.file_name().unwrap().to_str().unwrap();
-            let output_file_path = format!("{}.{}", output, output_suffix);
-            if !dry_run {
-                mk_parse(format, bin_standard, ranks, input_file, output_file_path.as_str());
-            }
-            println!("file {} converted, saved at {}", input_file, output_file_path.as_str());
+    for input_file in input_files {
+        let input_path = Path::new(input_file);
+        println!("converting file {}", input_file);
+
+        let output_file_path = if multiple_outputs {
+            let output_prefix = input_path.file_name().unwrap().to_str().unwrap();
+            format!("{}.{}", output_prefix, output)
+        } else {
+            output.to_string()
+        };
+
+        if !dry_run {
+            mk_parse(format, bin_standard, ranks, input_file, output_file_path.as_str());
         }
+        println!("file {} converted, saved at {}", input_file, output_file_path.as_str());
     }
 }
 
@@ -169,8 +174,9 @@ fn mk_parse(format: &str, bin_standard: &str, ranks: u32, input: &str, output: &
         "text" => {
             binary_parser::parse_wrapper(bin_standard, input, output, ranks, text_parser::new_parser(output)).unwrap();
         }
-        "db" => {}
-        "def" => {}
+        "dump" => {
+            binary_parser::parse_wrapper(bin_standard, input, output, ranks, dump_parser::new_parser(output)).unwrap();
+        }
         _ => unreachable!()
     }
 }
