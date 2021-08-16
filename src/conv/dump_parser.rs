@@ -39,6 +39,10 @@ impl DumpParser {
             self.output.write(buf.as_slice()).unwrap();
         }
     }
+    fn position(&mut self) -> u64 {
+        // todo: use self.output.stream_position().unwrap() when the api is stable.
+        self.output.seek(SeekFrom::Current(0)).unwrap()
+    }
 }
 
 // In current implementation, we write atoms data into the result file first.
@@ -75,13 +79,13 @@ impl out_writer::WriteProgress for DumpParser {
 
     fn before_frame(&mut self, frame: u32, output_file: &str) {
         self.atom_count = 0;
-        self.header_pos = self.output.stream_position().unwrap();
+        self.header_pos = self.position();
         self.output.seek(SeekFrom::Current(DUMP_HEADER_MAX_SIZE as i64)).unwrap();
         self.output.write("ITEM: ATOMS id type x y z\n".as_bytes()).unwrap();
     }
 
     fn after_frame(&mut self) {
-        let bytes_to_end_frame: u64 = self.output.stream_position().unwrap();
+        let bytes_to_end_frame: u64 = self.position();
         self.write_header();
         //seek back for processing out file with multiple frames.
         self.output.seek(SeekFrom::Start(bytes_to_end_frame));
