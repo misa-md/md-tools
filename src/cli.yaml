@@ -8,19 +8,19 @@ subcommands:
           - dry:
               short: d
               long: dry
-              help: Do everything except actually process files
+              about: Do everything except actually process files
               takes_value: false
           - input:
               short: i
               long: input
               required: true
-              multiple: true
-              help: Sets the filename of input files
+              multiple_values: true
+              about: Sets the filename of input files
               takes_value: true
           - output:
               short: o
               long: output
-              help: Sets the filename of output file
+              about: Sets the filename of output file
               default_value: md-output
               takes_value: true
           - format:
@@ -28,7 +28,7 @@ subcommands:
               long: format
               required: true
               value_name:  FORMAT
-              help: output format(xyz, text, dump)
+              about: output format(xyz, text, dump)
               possible_values:
                 - xyz
                 - text
@@ -37,9 +37,9 @@ subcommands:
           - standard:
               short: s
               long: standard
-              required: true
               value_name: STANDARD
-              help: binary file standard
+              about: binary file standard
+            #     required: true
               default_value: current
               possible_values: [ current, next ]
               takes_value: true
@@ -48,7 +48,7 @@ subcommands:
               long: ranks
               required: true
               value_name: RANKS
-              help: ranks to run the parallel program
+              about: ranks to run the parallel program
               takes_value: true
   - diff:
       about: compare particles in two xyz FILES id by id.
@@ -60,16 +60,16 @@ subcommands:
               default_value: "1e-4"
         - file_1:
               index: 1
-              help: first file path for `diff`
+              about: first file path for `diff`
               takes_value: true
               required: true
         - file_2:
               index: 2
-              help: second file path for `diff`
+              about: second file path for `diff`
               takes_value: true
               required: true
         - periodic_checking:
-            help: enable/disable periodic boundary checking while performing `diff`
+            about: enable/disable periodic boundary checking while performing `diff`
             long: periodic-checking
             short: p
             requires:
@@ -77,8 +77,8 @@ subcommands:
         - box:
               long: box
               short: b
-              multiple: true
-              help: the simulation box length, used for periodic boundary checking.
+              multiple_values: true
+              about: the simulation box length, used for periodic boundary checking.
               max_values: 3
               min_values: 3
 
@@ -89,24 +89,24 @@ subcommands:
                 short: i
                 long: input
                 required: true
-                multiple: true
-                help: Sets the filename of input files
+                multiple_values: true
+                about: Sets the filename of input files
                 takes_value: true
           - verbose:
                 short: v
                 long: verbose
-                help: show verbose log
+                about: show verbose log
                 takes_value: false
           - input-from-minio:
               short: M
               long: input-from-minio
-              help: Read input files from minio or aws s3 server
+              about: Read input files from minio or aws s3 server
               takes_value: false
           - box-start:
                 short: S
                 long: box-start
-                multiple: true
-                help: start position of simulation box for construction a perfect lattice box (default auto)
+                multiple_values: true
+                about: start position of simulation box for construction a perfect lattice box (default auto)
                 takes_value: true
                 value_names:
                   - x
@@ -115,8 +115,8 @@ subcommands:
           - box-size:
                 short: b
                 long: box-size
-                multiple: true
-                help: simulation box size. Use auto detection if not specified.
+                multiple_values: true
+                about: simulation box size. Use auto detection if not specified.
                 takes_value: true
                 value_names:
                   - x
@@ -125,14 +125,14 @@ subcommands:
           - output:
                 short: o
                 long: output
-                help: Sets the filename of output files
-                multiple: true
+                about: Sets the filename of output files
+                multiple_values: true
                 default_value: def.csv
                 takes_value: true
           - method:
                 short: m
                 long: algorithm
-                required: true
-                help: algorithm performing defect analysis (ws).
+            #     required: true
+                about: algorithm performing defect analysis (ws).
                 default_value: ws
                 takes_value: true
