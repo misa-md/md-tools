@@ -7,7 +7,7 @@
 tools for MISA-MD and Crystal MD
 
 ## Build
-Make sure [go](https://golang.org) is installed before building.  
+Make sure [go](https://golang.org) (version 1.14 or greater) and [rust](https://www.rust-lang.org) (version 1.54.0 or greater) are installed before building.  
 ### Quick build
 ```bash
 cargo build
@@ -25,7 +25,8 @@ CC=x86_64-linux-musl-gcc CGO_ENABLED=1 GOARCH=amd64 GOOS=linux cargo build --tar
 ```
 
 ## Usage
-Following example will convert binary Crystal MD output to xyz and text format.  
+### Format Conversion
+Following example will convert binary Crystal MD or MISA-MD output to xyz and text format.  
 
 ```bash
 md-tools conv -f xyz -r 64 -i crystal_md.origin.out -o origin.xyz
