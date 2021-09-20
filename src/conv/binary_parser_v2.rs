@@ -143,7 +143,7 @@ impl binary_types::BinaryParser for BinaryParserV2 {
         // read one atom
         let _n = match self.file.read(&mut buffer[..]) {
             Ok(p) => p,
-            Err(e) => panic!(e),
+            Err(e) => panic!("{:?}", e),
         };
 
         // parse it, the result is in self.atom.
