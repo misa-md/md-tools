@@ -69,7 +69,7 @@ impl FromStr for Particle {
             return Err(Error::IllegalState(String::from("must specific id, type and position")));
         }
 
-        let mut pos: (Real, Real, Real) = (
+        let pos: (Real, Real, Real) = (
             split[2].parse::<Real>().unwrap(),
             split[3].parse::<Real>().unwrap(),
             split[4].parse::<Real>().unwrap(),
