@@ -5,6 +5,7 @@ use crate::conv::out_writer;
 
 pub struct TextParser {
     output: std::io::BufWriter<File>,
+    prec: usize,
 }
 
 /**
@@ -12,13 +13,20 @@ pub struct TextParser {
 let mut writer = BufWriter::new(&file);
 // Then we write to the file. write_all() calls flush() after the write as well.
 writer.write_all(b"test\n");
-*/
+ */
 impl out_writer::WriteProgress for TextParser {
     fn on_atom_read(&mut self, atom: &TypeAtom) -> i32 {
-        let fmt_string = format!("{} \t {} \t{} \t{:.6} \t{:.6} \t{:.6}  \t{:.6} \t{:.6} \t{:.6}\n",
+        let fmt_string = format!("{} \t {} \t{} \t{:.*} \t{:.*} \t{:.*} \t{:.*} \t{:.*} \t{:.*}\t{:.*} \t{:.*} \t{:.*}\n",
                                  atom.id, atom.get_name_by_ele_name(), atom.inter_type,
-                                 atom.atom_location[0], atom.atom_location[1], atom.atom_location[2],
-                                 atom.atom_velocity[0], atom.atom_velocity[1], atom.atom_velocity[2]);
+                                 self.prec, atom.atom_location[0],
+                                 self.prec, atom.atom_location[1],
+                                 self.prec, atom.atom_location[2],
+                                 self.prec, atom.atom_velocity[0],
+                                 self.prec, atom.atom_velocity[1],
+                                 self.prec, atom.atom_velocity[2],
+                                 self.prec, atom.atom_force[0],
+                                 self.prec, atom.atom_force[1],
+                                 self.prec, atom.atom_force[2]);
         self.output.write(fmt_string.as_bytes()).unwrap();
         return 1 as i32;
     }
@@ -38,7 +46,7 @@ impl out_writer::WriteProgress for TextParser {
 }
 
 // filename: output file.
-pub fn new_parser(filename: &str) -> TextParser {
+pub fn new_parser(filename: &str, precision: u32) -> TextParser {
     // open output  file for writing.
     let file = OpenOptions::new()
         .read(false)
@@ -49,7 +57,10 @@ pub fn new_parser(filename: &str) -> TextParser {
 
     match file {
         Ok(stream) => {
-            return TextParser { output: std::io::BufWriter::with_capacity(1024 * 1024, stream) };
+            return TextParser {
+                output: std::io::BufWriter::with_capacity(1024 * 1024, stream),
+                prec: precision as usize,
+            };
         }
         Err(err) => {
             panic!("{:?}", err);

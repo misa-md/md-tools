@@ -6,6 +6,7 @@ use crate::conv::{binary_types, out_writer};
 pub struct XYZParser {
     output: std::io::BufWriter<File>,
     atom_count: u64,
+    prec: usize,
 }
 
 impl XYZParser {
@@ -27,9 +28,11 @@ impl XYZParser {
 
 impl out_writer::WriteProgress for XYZParser {
     fn on_atom_read(&mut self, atom: &binary_types::TypeAtom) -> i32 {
-        let fmt_string = format!("{} \t{:.6} \t{:.6} \t{:.6}\n",
+        let fmt_string = format!("{} \t{:.*} \t{:.*} \t{:.*}\n",
                                  atom.get_name_by_ele_name(),
-                                 atom.atom_location[0], atom.atom_location[1], atom.atom_location[2]);
+                                 self.prec, atom.atom_location[0],
+                                 self.prec, atom.atom_location[1],
+                                 self.prec, atom.atom_location[2]);
         self.output.write(fmt_string.as_bytes()).unwrap();
         self.atom_count += 1;
         return 1 as i32;
@@ -50,7 +53,7 @@ impl out_writer::WriteProgress for XYZParser {
 }
 
 // filename: output file.
-pub fn new_parser(filename: &str) -> XYZParser {
+pub fn new_parser(filename: &str, precision: u32) -> XYZParser {
     // open output  file for writing.
     let file = OpenOptions::new()
         .read(false)
@@ -61,7 +64,11 @@ pub fn new_parser(filename: &str) -> XYZParser {
 
     match file {
         Ok(stream) => {
-            return XYZParser { output: std::io::BufWriter::with_capacity(1024 * 1024, stream), atom_count: 0 };
+            return XYZParser {
+                output: std::io::BufWriter::with_capacity(1024 * 1024, stream),
+                atom_count: 0,
+                prec: precision as usize,
+            };
         }
         Err(err) => {
             panic!("{:?}", err);

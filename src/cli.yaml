@@ -34,6 +34,12 @@ subcommands:
                 - text
                 - dump
               takes_value: true
+          - precision:
+              short: p
+              long: precision
+              about: the float number precision
+              default_value: "6"
+              takes_value: true
           - standard:
               short: s
               long: standard
