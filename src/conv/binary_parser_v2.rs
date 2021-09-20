@@ -33,7 +33,7 @@ pub fn make_parser(filename: &str)
     // read global header
     let n = match input_file.read(&mut buffer[..]) {
         Ok(p) => p,
-        Err(e) => return Err(ParseError),
+        Err(_e) => return Err(ParseError),
     };
 
     // parse global header
@@ -96,7 +96,7 @@ impl BinaryParserV2 {
             let left: &[u8] = &buffer[cursor..];
             let atom_f = v2_atom_types::AtomDumpData3D::read_bytes(&left[..]);
             self.atom.atom_force = atom_f.atom_props;
-            cursor += std::mem::size_of::<v2_atom_types::AtomDumpData3D>();
+            std::mem::size_of::<v2_atom_types::AtomDumpData3D>();
         }
     }
     // try to checkout into next block

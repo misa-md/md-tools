@@ -31,7 +31,7 @@ impl out_writer::WriteProgress for TextParser {
         return 1 as i32;
     }
 
-    fn before_frame(&mut self, frame: u32, output: &str) {}
+    fn before_frame(&mut self, _frame: u32, _output: &str) {}
 
     fn after_frame(&mut self) {}
 
