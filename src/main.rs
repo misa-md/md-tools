@@ -84,7 +84,7 @@ fn parse_convert(matches: &&clap::ArgMatches) {
         };
 
         if !dry_run {
-            mk_parse(format, bin_standard, ranks, input_file, output_file_path.as_str());
+            mk_parse(format, precision, bin_standard, ranks, input_file, output_file_path.as_str());
         }
         println!("file {} converted, saved at {}", input_file, output_file_path.as_str());
     }
@@ -169,16 +169,16 @@ fn parse_ans(matches: &&clap::ArgMatches) {
     // todo, now only xyz format input is supported
 }
 
-fn mk_parse(format: &str, bin_standard: &str, ranks: u32, input: &str, output: &str) {
+fn mk_parse(format: &str, precision: u32, bin_standard: &str, ranks: u32, input: &str, output: &str) {
     match format {
         "xyz" => {
-            binary_parser::parse_wrapper(bin_standard, input, output, ranks, xyz_parser::new_parser(output)).unwrap();
+            binary_parser::parse_wrapper(bin_standard, input, output, ranks, xyz_parser::new_parser(output, precision)).unwrap();
         }
         "text" => {
-            binary_parser::parse_wrapper(bin_standard, input, output, ranks, text_parser::new_parser(output)).unwrap();
+            binary_parser::parse_wrapper(bin_standard, input, output, ranks, text_parser::new_parser(output, precision)).unwrap();
         }
         "dump" => {
-            binary_parser::parse_wrapper(bin_standard, input, output, ranks, dump_parser::new_parser(output)).unwrap();
+            binary_parser::parse_wrapper(bin_standard, input, output, ranks, dump_parser::new_parser(output, precision)).unwrap();
         }
         _ => unreachable!()
     }

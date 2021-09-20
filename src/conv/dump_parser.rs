@@ -8,6 +8,7 @@ const DUMP_HEADER_MAX_SIZE: usize = 256; // max header size in bytes
 
 pub struct DumpParser {
     output: std::io::BufWriter<File>,
+    prec: usize,
     header_pos: u64,
     atom_count: u64,
     bound_min: (f64, f64, f64),
@@ -49,9 +50,11 @@ impl DumpParser {
 // Then, it will seek and write the header.
 impl out_writer::WriteProgress for DumpParser {
     fn on_atom_read(&mut self, atom: &binary_types::TypeAtom) -> i32 {
-        let fmt_string = format!("{} {} \t{:.6} \t{:.6} \t{:.6}\n",
+        let fmt_string = format!("{} {} \t{:.*} \t{:.*} \t{:.*}\n",
                                  atom.id, atom.tp,
-                                 atom.atom_location[0], atom.atom_location[1], atom.atom_location[2]);
+                                 self.prec, atom.atom_location[0],
+                                 self.prec, atom.atom_location[1],
+                                 self.prec, atom.atom_location[2]);
         self.output.write(fmt_string.as_bytes()).unwrap();
         // re-calculate bound
         if atom.atom_location[0] < self.bound_min.0 {
@@ -102,7 +105,7 @@ impl out_writer::WriteProgress for DumpParser {
     fn done(&mut self) {}
 }
 
-pub fn new_parser(filename: &str) -> DumpParser {
+pub fn new_parser(filename: &str, precision: u32) -> DumpParser {
     // open output  file for writing.
     let file = OpenOptions::new()
         .read(false)
@@ -116,6 +119,7 @@ pub fn new_parser(filename: &str) -> DumpParser {
         Ok(stream) => {
             return DumpParser {
                 output: std::io::BufWriter::with_capacity(1024 * 1024, stream),
+                prec: precision as usize,
                 header_pos: 0,
                 atom_count: 0,
                 bound_min: (f64::MAX, f64::MAX, f64::MAX),
