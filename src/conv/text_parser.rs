@@ -13,17 +13,20 @@ pub struct TextParser {
 let mut writer = BufWriter::new(&file);
 // Then we write to the file. write_all() calls flush() after the write as well.
 writer.write_all(b"test\n");
-*/
+ */
 impl out_writer::WriteProgress for TextParser {
     fn on_atom_read(&mut self, atom: &TypeAtom) -> i32 {
-        let fmt_string = format!("{} \t {} \t{} \t{:.*} \t{:.*} \t{:.*}  \t{:.*} \t{:.*} \t{:.*}\n",
+        let fmt_string = format!("{} \t {} \t{} \t{:.*} \t{:.*} \t{:.*} \t{:.*} \t{:.*} \t{:.*}\t{:.*} \t{:.*} \t{:.*}\n",
                                  atom.id, atom.get_name_by_ele_name(), atom.inter_type,
                                  self.prec, atom.atom_location[0],
                                  self.prec, atom.atom_location[1],
                                  self.prec, atom.atom_location[2],
                                  self.prec, atom.atom_velocity[0],
                                  self.prec, atom.atom_velocity[1],
-                                 self.prec, atom.atom_velocity[2]);
+                                 self.prec, atom.atom_velocity[2],
+                                 self.prec, atom.atom_force[0],
+                                 self.prec, atom.atom_force[1],
+                                 self.prec, atom.atom_force[2]);
         self.output.write(fmt_string.as_bytes()).unwrap();
         return 1 as i32;
     }
