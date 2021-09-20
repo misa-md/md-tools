@@ -48,6 +48,9 @@ fn parse_convert(matches: &&clap::ArgMatches) {
         return;
     }
 
+    // float number precision
+    let precision: u32 = matches.value_of_t("precision").unwrap_or(6);
+
     let bin_standard = matches.value_of("standard").unwrap();
 
     let dry_run = matches.is_present("dry");
