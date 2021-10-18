@@ -16,7 +16,6 @@ fn main() {
     let yml = load_yaml!("cli.yaml");
     let matches = App::from(yml)
         .setting(clap::AppSettings::ArgRequiredElseHelp)
-        .setting(clap::AppSettings::ColoredHelp)
         .version(crate_version!())
         .author(crate_authors!())
         .get_matches();
