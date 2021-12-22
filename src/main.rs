@@ -37,25 +37,16 @@ fn main() {
     println!("No subcommand is used");
 }
 
-fn parse_convert(dry_run: bool, standard: cli::FormatStandard, input_files: &Vec<PathBuf>, _output: String,
-                 _format: cli::OutFormat, _ranks: usize, _precision: u32) {
-    let ranks = _ranks;
+fn parse_convert(dry_run: bool, bin_standard: cli::FormatStandard, input_files: &Vec<PathBuf>, output: String,
+                 format: cli::OutFormat, ranks: usize, precision: u32) {
     if ranks <= (0 as usize) {
         println!("unsupported ranks value.");
         return;
     }
-    let format = _format;
     if !(format == cli::OutFormat::Xyz || format == cli::OutFormat::Dump || format == cli::OutFormat::Text) {
         println!("unsupported format.");
         return;
     }
-
-    // float number precision
-    let precision: u32 = _precision as u32; // matches.value_of_t("precision").unwrap_or(6);
-
-    let bin_standard = standard;
-
-    let output = _output;
 
     if input_files.len() == 0 {
         println!("no matching input files");
@@ -85,7 +76,8 @@ fn parse_convert(dry_run: bool, standard: cli::FormatStandard, input_files: &Vec
     }
 }
 
-fn parse_ans(input: &Vec<PathBuf>, output: &Vec<String>, verbose: bool, input_from_minio: bool, _box_start: Vec<f64>, box_size: Vec<u64>, algorithm: AnsAlgorithm) {
+fn parse_ans(input: &Vec<PathBuf>, output: &Vec<String>, verbose_log: bool, input_from_minio: bool,
+             _box_start: Vec<f64>, box_size: Vec<u64>, algorithm: AnsAlgorithm) {
     let input_files = input.clone();
     let output_files = output.clone();
     let mut box_start: Vec<ans::voronoy::Float> = Vec::new();
@@ -93,53 +85,12 @@ fn parse_ans(input: &Vec<PathBuf>, output: &Vec<String>, verbose: bool, input_fr
         box_start.push(start as ans::voronoy::Float);
     }
 
-    /*
-    if let Some(arg_input) = matches.values_of("input") {
-        for in_file in arg_input {
-            input_files.push(in_file);
-        }
-    }
-
-    if let Some(arg_output) = matches.values_of("output") {
-        for out_file in arg_output {
-            output_files.push(out_file);
-        }
-    }
-
-    let mut box_start: Vec<ans::voronoy::Float> = Vec::new();
-    if matches.is_present("box-start") {
-        for start in matches.values_of_t::<ans::voronoy::Float>("box-start").unwrap() {
-            box_start.push(start);
-        }
-    }
-    */
-    /*
-    let mut box_size: Vec<u64> = Vec::new();
-    if matches.is_present("box-size") {
-        for l_size in matches.values_of_t::<u64>("box-size").unwrap() {
-            box_size.push(l_size);
-        }
-    }
-    */
     let mut box_config = ans::box_config::BoxConfig {
         input_box_start: box_start,
         input_box_size: box_size,
         box_size_: (0, 0, 0),
         box_start: (0.0, 0.0, 0.0),
     };
-
-    let verbose_log: bool = verbose;
-    /*
-    if matches.is_present("verbose") {
-        verbose_log = true;
-    }
-
-    let mut input_from_minio: bool = false;
-    if matches.is_present("input-from-minio") {
-        println!("Now we will read input file from minio or AWS s3");
-        input_from_minio = true;
-    }
-    */
 
     if input_files.len() == 0 {
         println!("no matching input files");
@@ -195,7 +146,6 @@ fn parse_diff(error: f64, file1: String, file2: String, periodic_checking: bool,
     let error_limit: f64 = error;
     let file1: &str = file1.as_str();
     let file2: &str = file2.as_str();
-
 
     let mut box_measured_size = (0.0, 0.0, 0.0);
     if !sim_box.is_empty() && sim_box.len() == 3 {
