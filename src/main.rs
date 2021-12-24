@@ -78,6 +78,13 @@ fn parse_convert(dry_run: bool, bin_standard: cli::FormatStandard, input_files: 
 
 fn parse_ans(input: &Vec<PathBuf>, output: &Vec<String>, verbose_log: bool, input_from_minio: bool,
              _box_start: Vec<f64>, box_size: Vec<u64>, algorithm: AnsAlgorithm) {
+    if box_size.len() != 0 && box_size.len() != 3 {
+        panic!("length of box size must be 3.");
+    }
+    if _box_start.len() != 0 && _box_start.len() != 3 {
+        panic!("length of box start must be 3.");
+    }
+
     let input_files = input.clone();
     let output_files = output.clone();
     let mut box_start: Vec<ans::voronoy::Float> = Vec::new();

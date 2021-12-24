@@ -56,13 +56,13 @@ pub(crate) enum Commands {
     Diff {
         #[clap(short, long, default_value_t = 1e-4, help = "max error")]
         error: f64,
-        #[clap(short, long, required = true, help = "first file path for `diff`")]
+        #[clap(required = true, help = "first file path for `diff`")]
         file_1: String,
-        #[clap(short, long, required = true, help = "second file path for `diff`")]
+        #[clap(required = true, help = "second file path for `diff`")]
         file_2: String,
-        #[clap(short, long, requires = "sim_box", help = "enable/disable periodic boundary checking while performing `diff`")]
+        #[clap(short, long, requires = "box", help = "enable/disable periodic boundary checking while performing `diff`")]
         periodic_checking: bool,
-        #[clap(short = 'b', long = "box", required = true, multiple_values = true, max_values = 3, min_values = 3, help = "the simulation box length, used for periodic boundary checking.")]
+        #[clap(short = 'b', long = "box", group = "box", required = true, multiple_values = true, max_values = 3, min_values = 3, help = "the simulation box length, used for periodic boundary checking.")]
         sim_box: Vec<f64>,
     },
     /// defect analysis
@@ -73,13 +73,13 @@ pub(crate) enum Commands {
         input: Vec<path::PathBuf>,
         #[clap(short, long, multiple_values = true, required = true, help = "Sets the filename of output files")]
         output: Vec<String>,
-        #[clap(short, long, multiple_values = true, help = "show verbose log")]
+        #[clap(short, long, help = "show verbose log")]
         verbose: bool,
         #[clap(short = 'M', long = "input-from-minio", help = "Read input files from minio or aws s3 server")]
         input_from_minio: bool,
-        #[clap(short = 'S', long = "box-start", multiple_values = true, help = "start position of simulation box for construction a perfect lattice box (default auto)")]
+        #[clap(short = 'S', long = "box-start", multiple_values = true, max_values = 3, min_values = 3, help = "start position of simulation box for construction a perfect lattice box (default auto)")]
         box_start: Vec<f64>,
-        #[clap(short, long, multiple_values = true, help = "simulation box size. Use auto detection if not specified.")]
+        #[clap(short, long, multiple_values = true, max_values = 3, min_values = 3, help = "simulation box size. Use auto detection if not specified.")]
         box_size: Vec<u64>,
         #[clap(short, long, arg_enum, default_value_t = AnsAlgorithm::WS, help = "algorithm performing defect analysis (ws).")]
         algorithm: AnsAlgorithm,
