@@ -1,10 +1,10 @@
 extern crate libc;
 
 use std::{fmt, error};
-use crate::conv::binary_parser_v1::make_parser;
-use crate::conv::{binary_parser_v2};
+use crate::conv::{binary_parser_v1, binary_parser_v2};
 use crate::conv::binary_types::{BinaryParser};
 use crate::conv::out_writer::WriteProgress;
+use crate::cli;
 
 
 #[derive(Debug, Clone)]
@@ -30,17 +30,17 @@ impl error::Error for ParseError {
 
 //on_read: fn (atom: OneAtomType) -> u32
 // select parser for different version of binary format
-pub fn parse_wrapper(bin_standard: &str, filename: &str, output: &str, ranks: u32, writer: impl WriteProgress)
+pub fn parse_wrapper(bin_standard: cli::FormatStandard, filename: &str, output: &str, ranks: u32, writer: impl WriteProgress)
                      -> std::result::Result<i32, ParseError> {
-    if bin_standard == "current" {
-        let bin_parser = match make_parser(filename, ranks) {
+    if bin_standard == cli::FormatStandard::Current {
+        let bin_parser = match binary_parser_v1::make_parser(filename, ranks) {
             Ok(p) => p,
             Err(e) => return Err(e)
         };
         return parse(output, bin_parser, writer);
     }
 
-    if bin_standard == "next" {
+    if bin_standard == cli::FormatStandard::Next {
         let bin_parser_v2 = match binary_parser_v2::make_parser(filename) {
             Ok(p) => p,
             Err(e) => return Err(e)
