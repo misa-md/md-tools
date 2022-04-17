@@ -1,9 +1,9 @@
 use std::path;
-use clap::{AppSettings, ArgEnum, Parser, Subcommand};
+use clap::{ArgEnum, Parser, Subcommand};
 
 #[derive(Parser)]
 #[clap(author, version)]
-#[clap(setting(AppSettings::SubcommandRequiredElseHelp))]
+#[clap(arg_required_else_help = true, arg_required_else_help = true)]
 #[clap(name = "md-tools")]
 #[clap(about = "MISA-MD tools, compatible with MISA-MD (or Crystal MD) v0.3.x, v0.4.x and later versions.")]
 pub(crate) struct Cli {
@@ -32,7 +32,7 @@ pub enum AnsAlgorithm {
 #[derive(Subcommand)]
 pub(crate) enum Commands {
     /// convert to tex or xyz format.
-    #[clap(setting(AppSettings::ArgRequiredElseHelp))]
+    #[clap(arg_required_else_help = true)]
     #[clap(about = "convert binary MD results to text files.")]
     Conv {
         #[clap(short, long, help = "Do everything except actually process files")]
@@ -51,7 +51,7 @@ pub(crate) enum Commands {
         ranks: usize,
     },
     /// diff files
-    #[clap(setting(AppSettings::ArgRequiredElseHelp))]
+    #[clap(arg_required_else_help = true)]
     #[clap(about = "compare particles in two xyz FILES id by id.")]
     Diff {
         #[clap(short, long, default_value_t = 1e-4, help = "max error")]
@@ -66,7 +66,7 @@ pub(crate) enum Commands {
         sim_box: Vec<f64>,
     },
     /// defect analysis
-    #[clap(setting(AppSettings::ArgRequiredElseHelp))]
+    #[clap(arg_required_else_help = true)]
     #[clap(about = "defect analysis.")]
     Ans {
         #[clap(short, long, multiple_values = true, required = true, parse(from_os_str), help = "Sets the filename of input files")]

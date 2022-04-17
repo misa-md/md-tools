@@ -1,7 +1,9 @@
 #[cfg(feature = "minio-analysis")]
 use crate::ans::libminio_rw;
+#[cfg(not(feature = "minio-analysis"))]
+use std::ptr::{null_mut};
+#[cfg(feature = "minio-analysis")]
 use std::ffi::{CStr, CString};
-use std::ptr::{null_mut, null};
 
 #[cfg(not(feature = "minio-analysis"))]
 pub fn voronoy_ans_minio(_xyz_file: &str) -> (bool, &[u8], *mut libc::c_char) {
@@ -11,7 +13,7 @@ pub fn voronoy_ans_minio(_xyz_file: &str) -> (bool, &[u8], *mut libc::c_char) {
 }
 
 #[cfg(not(feature = "minio-analysis"))]
-pub fn release_minio_file(data_ptr: *mut libc::c_char) {
+pub fn release_minio_file(_data_ptr: *mut libc::c_char) {
     return;
 }
 

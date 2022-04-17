@@ -33,7 +33,7 @@ pub fn make_parser(filename: &str)
     // read global header
     let n = match input_file.read(&mut buffer[..]) {
         Ok(p) => p,
-        Err(e) => return Err(ParseError),
+        Err(_e) => return Err(ParseError),
     };
 
     // parse global header
@@ -96,14 +96,13 @@ impl BinaryParserV2 {
             let left: &[u8] = &buffer[cursor..];
             let atom_f = v2_atom_types::AtomDumpData3D::read_bytes(&left[..]);
             self.atom.atom_force = atom_f.atom_props;
-            cursor += std::mem::size_of::<v2_atom_types::AtomDumpData3D>();
         }
     }
     // try to checkout into next block
     fn try_switch_to_next_block(&mut self) {
         if (self.cur_index_in_block as u64) >= self.global_header.block_atoms {
             let seek_size = self.global_header.block_atoms * (self.global_header.mpi_ranks - 1) * self.global_header.atom_item_bytes;
-            self.file.seek(std::io::SeekFrom::Current(seek_size as i64));
+            self.file.seek(std::io::SeekFrom::Current(seek_size as i64)).unwrap();
             self.cur_index_in_block = 0;
         }
         self.cur_index_in_block += 1;
@@ -116,7 +115,7 @@ impl BinaryParserV2 {
 
         // recover offset and index in block in the new rank (useful if there are multiple frames in file).
         let offset = self.rank_start_offset[self.cur_rank as usize];
-        self.file.seek(std::io::SeekFrom::Start(offset.0));
+        self.file.seek(std::io::SeekFrom::Start(offset.0)).unwrap();
         self.cur_index_in_block = offset.1;
     }
 
@@ -143,7 +142,7 @@ impl binary_types::BinaryParser for BinaryParserV2 {
         // read one atom
         let _n = match self.file.read(&mut buffer[..]) {
             Ok(p) => p,
-            Err(e) => panic!(e),
+            Err(e) => panic!("{:?}", e),
         };
 
         // parse it, the result is in self.atom.
@@ -174,7 +173,7 @@ impl binary_types::BinaryParser for BinaryParserV2 {
         self.cur_rank = 0;
         let cursor: u64 = self.rank_start_offset[0].0; // move to first rank and first block
         self.cur_index_in_block = self.rank_start_offset[0].1;
-        self.file.seek(std::io::SeekFrom::Start(cursor));
+        self.file.seek(std::io::SeekFrom::Start(cursor)).unwrap();
         self.next_frame += 1;
         return true;
     }

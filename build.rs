@@ -31,7 +31,7 @@ fn gen_minio_rw_api() {
 
     let status = match cmd.status() {
         Ok(status) => status,
-        Err(e) => panic!(format!("failed to execute command: {:?}\nerror: {}", cmd, e)),
+        Err(e) => panic!("failed to execute command: {:?}\nerror: {}", cmd, e),
     };
     assert!(status.success());
 

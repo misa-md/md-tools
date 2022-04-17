@@ -124,7 +124,7 @@ mod tests {
             C 1.1 1.9 2.8
             O 4.2 3.0 5.9
             H 5.0 1.6 4.0";
-        let mut reader = Reader::new(data);
+        let reader = Reader::new(data);
         let mut itl_reader = ItlReader { reader };
         assert!(itl_reader.next().is_some());
         assert!(itl_reader.next().is_some());
