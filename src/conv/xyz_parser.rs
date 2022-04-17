@@ -38,7 +38,7 @@ impl out_writer::WriteProgress for XYZParser {
         return 1 as i32;
     }
 
-    fn before_frame(&mut self, frame: u32, output: &str) {
+    fn before_frame(&mut self, _frame: u32, _output: &str) {
         self.atom_count = 0;
         self.output.seek(SeekFrom::Start(128)).unwrap();
     }
@@ -47,7 +47,8 @@ impl out_writer::WriteProgress for XYZParser {
         self.write_auto_header();
     }
 
-    fn on_start(&mut self, output: &str) {}
+    fn on_start(&mut self, _output: &str) {
+    }
 
     fn done(&mut self) {}
 }

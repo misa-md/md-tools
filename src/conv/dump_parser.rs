@@ -80,7 +80,7 @@ impl out_writer::WriteProgress for DumpParser {
         return 1 as i32;
     }
 
-    fn before_frame(&mut self, frame: u32, output_file: &str) {
+    fn before_frame(&mut self, _frame: u32, _output_file: &str) {
         self.atom_count = 0;
         self.header_pos = self.position();
         self.output.seek(SeekFrom::Current(DUMP_HEADER_MAX_SIZE as i64)).unwrap();
@@ -94,7 +94,7 @@ impl out_writer::WriteProgress for DumpParser {
         self.output.seek(SeekFrom::Start(bytes_to_end_frame));
     }
 
-    fn on_start(&mut self, output: &str) {
+    fn on_start(&mut self, _output: &str) {
         // append to end of file.
         // we dont use append mode to write, because in this mode,
         // it always reposition cursor to end of file before each write.
