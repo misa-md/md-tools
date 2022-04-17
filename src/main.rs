@@ -34,7 +34,6 @@ fn main() {
             return;
         }
     }
-    println!("No subcommand is used");
 }
 
 fn parse_convert(dry_run: bool, bin_standard: cli::FormatStandard, input_files: &Vec<PathBuf>, output: String,
@@ -77,7 +76,7 @@ fn parse_convert(dry_run: bool, bin_standard: cli::FormatStandard, input_files: 
 }
 
 fn parse_ans(input: &Vec<PathBuf>, output: &Vec<String>, verbose_log: bool, input_from_minio: bool,
-             _box_start: Vec<f64>, box_size: Vec<u64>, algorithm: AnsAlgorithm) {
+             _box_start: Vec<f64>, box_size: Vec<u64>, _algorithm: AnsAlgorithm) {
     if box_size.len() != 0 && box_size.len() != 3 {
         panic!("length of box size must be 3.");
     }
@@ -145,7 +144,6 @@ fn mk_parse(format: cli::OutFormat, precision: u32, bin_standard: cli::FormatSta
         cli::OutFormat::Dump => {
             binary_parser::parse_wrapper(bin_standard, input, output, ranks, dump_parser::new_parser(output, precision)).unwrap();
         }
-        _ => unreachable!()
     }
 }
 

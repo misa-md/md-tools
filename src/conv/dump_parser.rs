@@ -91,7 +91,7 @@ impl out_writer::WriteProgress for DumpParser {
         let bytes_to_end_frame: u64 = self.position();
         self.write_header();
         //seek back for processing out file with multiple frames.
-        self.output.seek(SeekFrom::Start(bytes_to_end_frame));
+        self.output.seek(SeekFrom::Start(bytes_to_end_frame)).unwrap();
     }
 
     fn on_start(&mut self, _output: &str) {
