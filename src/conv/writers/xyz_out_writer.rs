@@ -1,15 +1,16 @@
 use std::io::{Write, SeekFrom};
 use std::io::Seek;
 use std::fs::{OpenOptions, File};
-use crate::conv::{binary_types, out_writer};
+use crate::conv::binary_types;
+use crate::conv::writers::out_writer;
 
-pub struct XYZParser {
+pub struct XYZOutWriter {
     output: std::io::BufWriter<File>,
     atom_count: u64,
     prec: usize,
 }
 
-impl XYZParser {
+impl XYZOutWriter {
     fn write_auto_header(&mut self) {
         // write header.
         self.output.seek(SeekFrom::Start(0)).unwrap();
@@ -26,7 +27,7 @@ impl XYZParser {
     }
 }
 
-impl out_writer::WriteProgress for XYZParser {
+impl out_writer::WriteProgress for XYZOutWriter {
     fn on_atom_read(&mut self, atom: &binary_types::TypeAtom) -> i32 {
         let fmt_string = format!("{} \t{:.*} \t{:.*} \t{:.*}\n",
                                  atom.get_name_by_ele_name(),
@@ -54,7 +55,7 @@ impl out_writer::WriteProgress for XYZParser {
 }
 
 // filename: output file.
-pub fn new_parser(filename: &str, precision: u32) -> XYZParser {
+pub fn new_writer(filename: &str, precision: u32) -> XYZOutWriter {
     // open output  file for writing.
     let file = OpenOptions::new()
         .read(false)
@@ -65,7 +66,7 @@ pub fn new_parser(filename: &str, precision: u32) -> XYZParser {
 
     match file {
         Ok(stream) => {
-            return XYZParser {
+            return XYZOutWriter {
                 output: std::io::BufWriter::with_capacity(1024 * 1024, stream),
                 atom_count: 0,
                 prec: precision as usize,
