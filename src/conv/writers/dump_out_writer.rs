@@ -2,7 +2,8 @@
 
 use std::fs::{OpenOptions, File};
 use std::io::{Seek, SeekFrom, Write};
-use crate::conv::{binary_types, out_writer};
+use crate::conv::binary_types;
+use crate::conv::writers::out_writer;
 
 const DUMP_HEADER_MAX_SIZE: usize = 256; // max header size in bytes
 

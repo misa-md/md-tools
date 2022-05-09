@@ -1,7 +1,8 @@
 use std::io::{Write, SeekFrom};
 use std::io::Seek;
 use std::fs::{OpenOptions, File};
-use crate::conv::{binary_types, out_writer};
+use crate::conv::binary_types;
+use crate::conv::writers::out_writer;
 
 pub struct XYZParser {
     output: std::io::BufWriter<File>,

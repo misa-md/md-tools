@@ -2,7 +2,7 @@ use std::fs::{File, OpenOptions};
 use std::io::{Seek, SeekFrom, Write};
 use serde::{Serialize, Deserialize};
 use crate::conv::binary_types::TypeAtom;
-use crate::conv::out_writer;
+use crate::conv::writers::out_writer;
 
 // parse the origin binary file to another binary file.
 pub struct BinParser {

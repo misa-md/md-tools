@@ -1,7 +1,7 @@
 use std::fs::{OpenOptions, File};
 use std::io::Write;
 use crate::conv::binary_types::TypeAtom;
-use crate::conv::out_writer;
+use crate::conv::writers::out_writer;
 
 pub struct TextParser {
     output: std::io::BufWriter<File>,

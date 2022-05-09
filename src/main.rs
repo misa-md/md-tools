@@ -3,7 +3,8 @@ use clap::Parser;
 use std::path::{Path, PathBuf};
 use crate::cli::AnsAlgorithm;
 
-use crate::conv::{binary_parser, xyz_parser, text_parser, bin_parser, dump_parser};
+use crate::conv::{binary_parser};
+use crate::conv::writers::{bin_out_writer, dump_out_writer, text_out_writer, xyz_out_writer};
 
 mod ans;
 mod diff;
@@ -136,16 +137,16 @@ fn parse_ans(input: &Vec<PathBuf>, output: &Vec<String>, verbose_log: bool, inpu
 fn mk_parse(format: cli::OutFormat, precision: u32, bin_standard: cli::FormatStandard, ranks: u32, input: &str, output: &str) {
     match format {
         cli::OutFormat::Xyz => {
-            binary_parser::parse_wrapper(bin_standard, input, output, ranks, xyz_parser::new_parser(output, precision)).unwrap();
+            binary_parser::parse_wrapper(bin_standard, input, output, ranks, xyz_out_writer::new_parser(output, precision)).unwrap();
         }
         cli::OutFormat::Text => {
-            binary_parser::parse_wrapper(bin_standard, input, output, ranks, text_parser::new_parser(output, precision)).unwrap();
+            binary_parser::parse_wrapper(bin_standard, input, output, ranks, text_out_writer::new_parser(output, precision)).unwrap();
         }
         cli::OutFormat::Dump => {
-            binary_parser::parse_wrapper(bin_standard, input, output, ranks, dump_parser::new_parser(output, precision)).unwrap();
+            binary_parser::parse_wrapper(bin_standard, input, output, ranks, dump_out_writer::new_parser(output, precision)).unwrap();
         }
         cli::OutFormat::Bin => {
-            binary_parser::parse_wrapper(bin_standard, input, output, ranks, bin_parser::new_parser(output, precision)).unwrap();
+            binary_parser::parse_wrapper(bin_standard, input, output, ranks, bin_out_writer::new_parser(output, precision)).unwrap();
         }
     }
 }

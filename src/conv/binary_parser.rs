@@ -3,7 +3,7 @@ extern crate libc;
 use std::{fmt, error};
 use crate::conv::{binary_parser_v1, binary_parser_v2};
 use crate::conv::binary_types::{BinaryParser};
-use crate::conv::out_writer::WriteProgress;
+use crate::conv::writers::out_writer::WriteProgress;
 use crate::cli;
 
 
