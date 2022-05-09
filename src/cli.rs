@@ -16,6 +16,7 @@ pub enum OutFormat {
     Xyz,
     Text,
     Dump,
+    Bin,
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, PartialOrd, Ord, ArgEnum)]

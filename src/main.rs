@@ -3,7 +3,7 @@ use clap::Parser;
 use std::path::{Path, PathBuf};
 use crate::cli::AnsAlgorithm;
 
-use crate::conv::{binary_parser, xyz_parser, text_parser, dump_parser};
+use crate::conv::{binary_parser, xyz_parser, text_parser, bin_parser, dump_parser};
 
 mod ans;
 mod diff;
@@ -42,7 +42,7 @@ fn parse_convert(dry_run: bool, bin_standard: cli::FormatStandard, input_files: 
         println!("unsupported ranks value.");
         return;
     }
-    if !(format == cli::OutFormat::Xyz || format == cli::OutFormat::Dump || format == cli::OutFormat::Text) {
+    if !(format == cli::OutFormat::Xyz || format == cli::OutFormat::Dump || format == cli::OutFormat::Bin || format == cli::OutFormat::Text) {
         println!("unsupported format.");
         return;
     }
@@ -143,6 +143,9 @@ fn mk_parse(format: cli::OutFormat, precision: u32, bin_standard: cli::FormatSta
         }
         cli::OutFormat::Dump => {
             binary_parser::parse_wrapper(bin_standard, input, output, ranks, dump_parser::new_parser(output, precision)).unwrap();
+        }
+        cli::OutFormat::Bin => {
+            binary_parser::parse_wrapper(bin_standard, input, output, ranks, bin_parser::new_parser(output, precision)).unwrap();
         }
     }
 }
