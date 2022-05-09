@@ -7,7 +7,7 @@ use crate::conv::writers::out_writer;
 
 const DUMP_HEADER_MAX_SIZE: usize = 256; // max header size in bytes
 
-pub struct DumpParser {
+pub struct DumpOutWriter {
     output: std::io::BufWriter<File>,
     prec: usize,
     header_pos: u64,
@@ -16,7 +16,7 @@ pub struct DumpParser {
     bound_max: (f64, f64, f64),
 }
 
-impl DumpParser {
+impl DumpOutWriter {
     // write header, include atom time step, number, bounds and atoms position.
     fn write_header(&mut self) {
         self.output.seek(SeekFrom::Start(self.header_pos)).unwrap();
@@ -49,7 +49,7 @@ impl DumpParser {
 
 // In current implementation, we write atoms data into the result file first.
 // Then, it will seek and write the header.
-impl out_writer::WriteProgress for DumpParser {
+impl out_writer::WriteProgress for DumpOutWriter {
     fn on_atom_read(&mut self, atom: &binary_types::TypeAtom) -> i32 {
         let fmt_string = format!("{} {} \t{:.*} \t{:.*} \t{:.*}\n",
                                  atom.id, atom.tp,
@@ -106,7 +106,7 @@ impl out_writer::WriteProgress for DumpParser {
     fn done(&mut self) {}
 }
 
-pub fn new_parser(filename: &str, precision: u32) -> DumpParser {
+pub fn new_writer(filename: &str, precision: u32) -> DumpOutWriter {
     // open output  file for writing.
     let file = OpenOptions::new()
         .read(false)
@@ -118,7 +118,7 @@ pub fn new_parser(filename: &str, precision: u32) -> DumpParser {
 
     match file {
         Ok(stream) => {
-            return DumpParser {
+            return DumpOutWriter {
                 output: std::io::BufWriter::with_capacity(1024 * 1024, stream),
                 prec: precision as usize,
                 header_pos: 0,

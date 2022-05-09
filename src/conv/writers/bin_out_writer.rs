@@ -5,7 +5,7 @@ use crate::conv::binary_types::TypeAtom;
 use crate::conv::writers::out_writer;
 
 // parse the origin binary file to another binary file.
-pub struct BinParser {
+pub struct BinOutWriter {
     output: std::io::BufWriter<File>,
     atom_count: i64,
 }
@@ -28,7 +28,7 @@ struct Header {
     atom_size: usize,
 }
 
-impl out_writer::WriteProgress for BinParser {
+impl out_writer::WriteProgress for BinOutWriter {
     fn on_atom_read(&mut self, atom: &TypeAtom) -> i32 {
         let entity = BinaryAtom {
             id: atom.id,
@@ -69,7 +69,7 @@ impl out_writer::WriteProgress for BinParser {
 }
 
 // filename: output file.
-pub fn new_parser(filename: &str, _precision: u32) -> BinParser {
+pub fn new_writer(filename: &str, _precision: u32) -> BinOutWriter {
     // open output  file for writing.
     let file = OpenOptions::new()
         .read(false)
@@ -80,7 +80,7 @@ pub fn new_parser(filename: &str, _precision: u32) -> BinParser {
 
     match file {
         Ok(stream) => {
-            return BinParser {
+            return BinOutWriter {
                 output: std::io::BufWriter::with_capacity(1024 * 1024, stream),
                 atom_count: 0,
             };

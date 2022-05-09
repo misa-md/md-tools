@@ -3,7 +3,7 @@ use std::io::Write;
 use crate::conv::binary_types::TypeAtom;
 use crate::conv::writers::out_writer;
 
-pub struct TextParser {
+pub struct TextOutWriter {
     output: std::io::BufWriter<File>,
     prec: usize,
 }
@@ -14,7 +14,7 @@ let mut writer = BufWriter::new(&file);
 // Then we write to the file. write_all() calls flush() after the write as well.
 writer.write_all(b"test\n");
  */
-impl out_writer::WriteProgress for TextParser {
+impl out_writer::WriteProgress for TextOutWriter {
     fn on_atom_read(&mut self, atom: &TypeAtom) -> i32 {
         let fmt_string = format!("{} \t {} \t{} \t{:.*} \t{:.*} \t{:.*} \t{:.*} \t{:.*} \t{:.*}\t{:.*} \t{:.*} \t{:.*}\n",
                                  atom.id, atom.get_name_by_ele_name(), atom.inter_type,
@@ -46,7 +46,7 @@ impl out_writer::WriteProgress for TextParser {
 }
 
 // filename: output file.
-pub fn new_parser(filename: &str, precision: u32) -> TextParser {
+pub fn new_writer(filename: &str, precision: u32) -> TextOutWriter {
     // open output  file for writing.
     let file = OpenOptions::new()
         .read(false)
@@ -57,7 +57,7 @@ pub fn new_parser(filename: &str, precision: u32) -> TextParser {
 
     match file {
         Ok(stream) => {
-            return TextParser {
+            return TextOutWriter {
                 output: std::io::BufWriter::with_capacity(1024 * 1024, stream),
                 prec: precision as usize,
             };

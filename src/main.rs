@@ -137,16 +137,16 @@ fn parse_ans(input: &Vec<PathBuf>, output: &Vec<String>, verbose_log: bool, inpu
 fn mk_parse(format: cli::OutFormat, precision: u32, bin_standard: cli::FormatStandard, ranks: u32, input: &str, output: &str) {
     match format {
         cli::OutFormat::Xyz => {
-            binary_parser::parse_wrapper(bin_standard, input, output, ranks, xyz_out_writer::new_parser(output, precision)).unwrap();
+            binary_parser::parse_wrapper(bin_standard, input, output, ranks, xyz_out_writer::new_writer(output, precision)).unwrap();
         }
         cli::OutFormat::Text => {
-            binary_parser::parse_wrapper(bin_standard, input, output, ranks, text_out_writer::new_parser(output, precision)).unwrap();
+            binary_parser::parse_wrapper(bin_standard, input, output, ranks, text_out_writer::new_writer(output, precision)).unwrap();
         }
         cli::OutFormat::Dump => {
-            binary_parser::parse_wrapper(bin_standard, input, output, ranks, dump_out_writer::new_parser(output, precision)).unwrap();
+            binary_parser::parse_wrapper(bin_standard, input, output, ranks, dump_out_writer::new_writer(output, precision)).unwrap();
         }
         cli::OutFormat::Bin => {
-            binary_parser::parse_wrapper(bin_standard, input, output, ranks, bin_out_writer::new_parser(output, precision)).unwrap();
+            binary_parser::parse_wrapper(bin_standard, input, output, ranks, bin_out_writer::new_writer(output, precision)).unwrap();
         }
     }
 }
